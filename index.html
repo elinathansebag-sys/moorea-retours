@@ -335,7 +335,7 @@ window.saveConfig = function(){
     authDomain: document.getElementById('cfg-authDomain').value.trim(),
     projectId: pid,
     appId: document.getElementById('cfg-appId').value.trim(),
-    databaseURL: 'https://'+pid+'-default-rtdb.firebaseio.com'
+    databaseURL: 'https://'+pid+'-default-rtdb.europe-west1.firebasedatabase.app'
   };
   if(!cfg.apiKey||!pid){ showToast('Remplis au moins apiKey et projectId'); return; }
   localStorage.setItem('moorea_fb_config', JSON.stringify(cfg));
