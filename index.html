@@ -397,6 +397,54 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
   </div>
 </div>
 
+<!-- MODAL MODIFICATION -->
+<div class="modal-bg" id="modal-edit">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-title"><i class="ti ti-edit"></i> Modifier la fiche <span id="edit-num-label" style="color:var(--gold);margin-left:6px"></span></div>
+
+    <!-- INFOS GÉNÉRALES -->
+    <div class="section-header" style="margin-top:.5rem"><i class="ti ti-info-circle"></i> Informations générales</div>
+    <div class="form-row">
+      <div class="form-group"><label>Client</label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="edit-client" oninput="acEditClient(this)" onfocus="acEditClient(this)" autocomplete="off">
+          <div class="autocomplete-list" id="ac-edit-client" style="display:none"></div>
+        </div>
+      </div>
+      <div class="form-group"><label>N° du BL</label><input type="number" id="edit-bl" min="0" step="1"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Transporteur</label><input type="text" id="edit-transporteur"></div>
+      <div class="form-group"><label>Date de livraison</label><input type="date" id="edit-date-livraison"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:1rem"><label>Commercial</label><input type="text" id="edit-commercial"></div>
+
+    <!-- PRODUITS -->
+    <div class="section-header"><i class="ti ti-box"></i> Produits</div>
+    <table class="products-table" style="margin:.5rem 0">
+      <thead><tr>
+        <th style="width:22%">Produit</th>
+        <th style="width:11%">Lot</th>
+        <th style="width:11%">Origine</th>
+        <th style="width:20%">Qté att. / reçue</th>
+        <th style="width:4%"></th>
+        <th style="width:26%">Motif</th>
+        <th style="width:6%"></th>
+      </tr></thead>
+      <tbody id="edit-products-body"></tbody>
+    </table>
+    <button class="btn-add-row" onclick="addEditRow()"><i class="ti ti-plus"></i> Ajouter un produit</button>
+
+    <div class="separator"></div>
+    <div class="form-group"><label>Commentaires</label><textarea id="edit-comment" style="min-height:60px"></textarea></div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeEditModal()">Annuler</button>
+      <button class="btn-primary" onclick="sauvegarderModif()"><i class="ti ti-device-floppy"></i> Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -575,7 +623,7 @@ function selectEntrepotClient(c){
 }
 
 document.addEventListener('click',e=>{
-  ['ac-client','ac-bl','ac-r-client','ac-e-client'].forEach(id=>{
+  ['ac-client','ac-bl','ac-r-client','ac-e-client','ac-edit-client'].forEach(id=>{
     const el=document.getElementById(id);
     if(el&&!el.contains(e.target)) el.style.display='none';
   });
@@ -1259,10 +1307,11 @@ window.renderRetours=function(filter){
             })()}
           </div>
           <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-primary" style="padding:8px 18px;font-size:12px" onclick="event.stopPropagation();validerControle('${fid}')"><i class="ti ti-check"></i> Valider le contrôle</button>
+            <button class="btn-primary" style="padding:8px 18px;font-size:12px" onclick="event.stopPropagation();validerControle('${fid}')"><i class="ti ti-check"></i> Valider</button>
+            <button class="btn-secondary" style="font-size:12px;padding:7px 14px;border-color:rgba(200,168,75,.5);color:var(--gold)" onclick="event.stopPropagation();ouvrirModification('${fid}')"><i class="ti ti-edit"></i> Modifier</button>
             <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="event.stopPropagation();genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${fid}'))"><i class="ti ti-file-download"></i> PDF</button>
             <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager</button>
-            <button style="padding:7px 14px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="event.stopPropagation();demanderSuppression('retour','${fid}','${r.numero||fid}')"><i class="ti ti-trash"></i> Supprimer</button>
+            <button style="padding:7px 14px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="event.stopPropagation();demanderSuppression('retour','${fid}','${r.numero||fid}')"><i class="ti ti-trash"></i></button>
           </div>
         </div>
       </div>
@@ -1414,7 +1463,8 @@ window.renderSuivi=function(){
             ${srcTag}
             <span class="badge badge-${r.statut==='nouveau'?'new':'pending'}">${r.statut==='nouveau'?'Nouveau':'En attente'}</span>
           </div>
-          <div style="display:flex;gap:6px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button style="padding:5px 10px;font-size:11px;background:rgba(200,168,75,.1);color:var(--gold);border:1.5px solid rgba(200,168,75,.4);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:4px" onclick="ouvrirModification('${r.firebaseId||r.id}')"><i class="ti ti-edit"></i> Modifier</button>
             <button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button>
             <button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button>
           </div>
@@ -1460,8 +1510,9 @@ window.renderSuivi=function(){
         <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:75px;text-align:left">Date</th>
         <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:70px;text-align:left">Source</th>
         <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:120px;text-align:left">Contrôle</th>
-        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:50px;text-align:left">PDF</th>
-        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:45px;text-align:left"></th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:40px;text-align:left"></th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:40px;text-align:left">PDF</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:40px;text-align:left"></th>
       </tr></thead>
       <tbody>${fichesTraitees.map(r=>{
         const prods=r.products||[];
@@ -1479,6 +1530,7 @@ window.renderSuivi=function(){
           <td style="padding:7px 8px;color:var(--gray)">${r.date}</td>
           <td style="padding:7px 8px">${r.source==='entrepot_rattache'?'<span style="font-size:11px;color:#7c3aed;font-weight:600">Entrepôt</span>':'<span style="font-size:11px;color:var(--gray)">Commercial</span>'}</td>
           <td style="padding:7px 8px">${parts.length?parts.join(' '):'<span style="color:var(--gray)">—</span>'}</td>
+          <td style="padding:7px 8px"><button style="padding:5px 9px;font-size:11px;background:rgba(200,168,75,.1);color:var(--gold);border:1.5px solid rgba(200,168,75,.4);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="ouvrirModification('${r.firebaseId||r.id}')"><i class="ti ti-edit"></i></button></td>
           <td style="padding:7px 8px"><button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button></td>
           <td style="padding:7px 8px"><button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button></td>
         </tr>`;
@@ -1506,6 +1558,144 @@ async function confirmerSuppression(){
     closeDeleteModal();
     showToast('Fiche '+t.numero+' supprimée.');
   }catch(e){showToast('Erreur suppression : '+e.message);}
+}
+
+// ---- MODIFICATION ----
+window._editFid = null;
+
+function ouvrirModification(fid){
+  const fiche = window.retours.find(r=>(r.firebaseId||r.id)===fid);
+  if(!fiche) return;
+  window._editFid = fid;
+
+  document.getElementById('edit-num-label').textContent = fiche.numero||'';
+  document.getElementById('edit-client').value = fiche.client||'';
+  document.getElementById('edit-bl').value = fiche.bl||'';
+  document.getElementById('edit-transporteur').value = fiche.transporteur||'';
+  document.getElementById('edit-date-livraison').value = fiche.dateLiv||'';
+  document.getElementById('edit-commercial').value = fiche.commercial||'';
+  document.getElementById('edit-comment').value = fiche.comment||'';
+
+  // Remplir les produits
+  const tbody = document.getElementById('edit-products-body');
+  tbody.innerHTML = '';
+  (fiche.products||[]).forEach(p => {
+    const tr = makeEditRow();
+    const inputs = tr.querySelectorAll('input');
+    tr.querySelector('td:nth-child(1) input').value = p.nom||'';
+    tr.querySelector('td:nth-child(2) input').value = p.lot||'';
+    tr.querySelector('td:nth-child(3) input').value = p.origine||'';
+    const qi = tr.querySelectorAll('.qte-cell input');
+    qi[0].value = p.qteAttendue||'';
+    qi[1].value = p.qteRecue||'';
+    if(p.qteAttendue||p.qteRecue) updateDiff(qi[1]);
+    const sel = tr.querySelector('select');
+    sel.value = p.motif||'';
+    tbody.appendChild(tr);
+  });
+  if(!fiche.products||!fiche.products.length) tbody.appendChild(makeEditRow());
+
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function closeEditModal(){
+  document.getElementById('modal-edit').classList.remove('open');
+  window._editFid = null;
+}
+
+function makeEditRow(){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="position:relative"><input type="text" placeholder="Produit" oninput="showAcProduit(this)" onfocus="showAcProduit(this)" autocomplete="off"></td>
+    <td><input type="number" placeholder="Lot" min="0" step="1"></td>
+    <td style="position:relative"><input type="text" placeholder="Origine" oninput="showAcOrigine(this)" onfocus="showAcOrigine(this)" autocomplete="off"></td>
+    <td><div class="qte-cell">
+      <input type="number" placeholder="Att." min="0" oninput="updateDiff(this)">
+      <span class="qte-sep">/</span>
+      <input type="number" placeholder="Reçu" min="0" oninput="updateDiff(this)">
+      <span class="qte-diff"></span>
+    </div></td>
+    <td></td>
+    <td><select>
+      <option value="">-- Motif --</option>
+      <option>Défaut sanitaire – moisissure</option><option>Défaut sanitaire – pourriture</option>
+      <option>Qualité insuffisante</option><option>Erreur de préparation</option>
+      <option>Colis abîmé</option><option>Livraison incomplète</option>
+      <option>Mauvais article</option><option>Autre</option>
+    </select></td>
+    <td><button class="btn-del" onclick="delEditRow(this)"><i class="ti ti-trash"></i></button></td>`;
+  return tr;
+}
+function addEditRow(){ document.getElementById('edit-products-body').appendChild(makeEditRow()); }
+function delEditRow(btn){ if(document.querySelectorAll('#edit-products-body tr').length>1) btn.closest('tr').remove(); }
+
+function acEditClient(input){
+  const q=input.value.trim().toLowerCase();
+  const list=document.getElementById('ac-edit-client');
+  if(!q){list.style.display='none';return;}
+  const matches=window._histo.clients.filter(c=>c.client.toLowerCase().includes(q)).slice(0,6);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(c=>`<div class="autocomplete-item" onclick="selectEditClient(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+    <div class="ac-main">${c.client}</div>
+    ${c.transporteur?`<div class="ac-sub">🚛 ${c.transporteur}</div>`:''}
+  </div>`).join('');
+  list.style.display='block';
+}
+function selectEditClient(c){
+  document.getElementById('edit-client').value=c.client;
+  if(c.transporteur) document.getElementById('edit-transporteur').value=c.transporteur;
+  if(c.commercial) document.getElementById('edit-commercial').value=c.commercial;
+  document.getElementById('ac-edit-client').style.display='none';
+}
+
+async function sauvegarderModif(){
+  const fid = window._editFid; if(!fid) return;
+  const fiche = window.retours.find(r=>(r.firebaseId||r.id)===fid); if(!fiche) return;
+
+  const client = document.getElementById('edit-client').value.trim();
+  const bl = document.getElementById('edit-bl').value.trim();
+  if(!client||!bl){ showToast('Client et N° BL requis.'); return; }
+
+  // Récupérer les produits modifiés
+  const products = Array.from(document.querySelectorAll('#edit-products-body tr')).reduce((acc,r)=>{
+    const nom = r.querySelector('td:nth-child(1) input').value.trim(); if(!nom) return acc;
+    const lot = r.querySelector('td:nth-child(2) input').value.trim();
+    const origine = r.querySelector('td:nth-child(3) input').value.trim();
+    const qi = r.querySelectorAll('.qte-cell input');
+    const motif = r.querySelector('select').value;
+    // Preserve controle data from original
+    const orig = (fiche.products||[]).find(p=>p.nom===nom)||{};
+    acc.push({
+      nom, lot, origine,
+      qteAttendue: qi[0].value.trim(),
+      qteRecue: qi[1].value.trim(),
+      motif,
+      controle: orig.controle||{},
+      decisionArticle: orig.decisionArticle||null
+    });
+    return acc;
+  },[]);
+
+  if(!products.length){ showToast('Au moins un produit requis.'); return; }
+
+  const hasManque = products.some(p=>p.qteAttendue&&p.qteRecue&&parseInt(p.qteRecue)<parseInt(p.qteAttendue));
+
+  const updates = {
+    client,
+    bl,
+    transporteur: document.getElementById('edit-transporteur').value.trim(),
+    dateLiv: document.getElementById('edit-date-livraison').value,
+    commercial: document.getElementById('edit-commercial').value.trim(),
+    comment: document.getElementById('edit-comment').value.trim(),
+    products,
+    hasManque
+  };
+
+  try{
+    await window._update(window._ref(window._db,'retours/'+fiche.firebaseId), updates);
+    closeEditModal();
+    showToast('Fiche modifiée avec succès !');
+  }catch(e){ showToast('Erreur : '+e.message); }
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
