@@ -335,15 +335,27 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
   </div>
 </div>
 
+<!-- MODAL SUPPRESSION -->
+<div class="modal-bg" id="modal-delete">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title"><i class="ti ti-trash" style="color:#dc2626"></i> Supprimer la fiche</div>
+    <p style="font-size:13px;color:var(--gray);margin:1rem 0;line-height:1.7">Es-tu sûr de vouloir supprimer la fiche <strong id="delete-num-label"></strong> ? Cette action est <strong>irréversible</strong>.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeDeleteModal()">Annuler</button>
+      <button style="padding:11px 24px;background:#dc2626;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px" onclick="confirmerSuppression()"><i class="ti ti-trash"></i> Supprimer définitivement</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, push, onValue, update, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, push, onValue, update, get, remove } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 const cfg={apiKey:"AIzaSyAR0BdIsWrA7UDKfCFSANbqxDrIsqLq6BA",authDomain:"moorea-retours.firebaseapp.com",databaseURL:"https://moorea-retours-default-rtdb.europe-west1.firebasedatabase.app",projectId:"moorea-retours",storageBucket:"moorea-retours.firebasestorage.app",messagingSenderId:"57607281213",appId:"1:57607281213:web:f00e57e7d8cb7166c9a854"};
 const app=initializeApp(cfg);const db=getDatabase(app);
-window._db=db;window._ref=ref;window._push=push;window._update=update;window._get=get;
+window._db=db;window._ref=ref;window._push=push;window._update=update;window._get=get;window._remove=remove;
 setSyncStatus('loading','Connexion...');
 onValue(ref(db,'retours'),snap=>{
   const d=snap.val();
@@ -649,6 +661,7 @@ window.renderEntrepotList=function(){
         ${!r.rattache?`<button class="btn-warn" onclick="ouvrirRattachement('${r.firebaseId}')"><i class="ti ti-link"></i> Rattacher</button>`:''}
         <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="genererPDF({...window.retoursEntrepot.find(x=>x.firebaseId==='${r.firebaseId}'),client:window.retoursEntrepot.find(x=>x.firebaseId==='${r.firebaseId}').clientRattache||'(non rattaché)',bl:window.retoursEntrepot.find(x=>x.firebaseId==='${r.firebaseId}').blRattache||'—'})"><i class="ti ti-file-download"></i> PDF</button>
         <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="rouvrirPartage('${r.firebaseId}','entrepot')"><i class="ti ti-share"></i> Partager</button>
+        <button style="padding:7px 14px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="demanderSuppression('entrepot','${r.firebaseId}','${r.numero||r.firebaseId}')"><i class="ti ti-trash"></i> Supprimer</button>
       </div>
     </div>`;
   }).join('');
@@ -944,6 +957,7 @@ window.renderRetours=function(filter){
             ${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'✓ Remise en stock':'✗ Destruction'}</span>`:''}
             <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="event.stopPropagation();genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${fid}'))"><i class="ti ti-file-download"></i> PDF</button>
             <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager</button>
+            <button style="padding:7px 14px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="event.stopPropagation();demanderSuppression('retour','${fid}','${r.numero||fid}')"><i class="ti ti-trash"></i> Supprimer</button>
           </div>
         </div>
       </div>
@@ -986,6 +1000,7 @@ window.renderSuivi=function(){
         <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:75px;text-align:left">Statut</th>
         <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Décision</th>
         <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:45px;text-align:left">PDF</th>
+        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:50px;text-align:left"></th>
       </tr></thead>
       <tbody>${window.retours.map(r=>`<tr style="border-bottom:1px solid #f5f3ee">
         <td style="padding:7px 8px"><span class="num-fiche">${r.numero||'—'}</span></td>
@@ -996,9 +1011,31 @@ window.renderSuivi=function(){
         <td style="padding:7px 8px"><span class="badge badge-${r.statut==='nouveau'?'new':r.statut==='en_attente'?'pending':'done'}">${r.statut==='nouveau'?'Nouveau':r.statut==='en_attente'?'En attente':'Traité'}</span></td>
         <td style="padding:7px 8px">${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'Stock':'Détruit'}</span>`:'—'}</td>
         <td style="padding:7px 8px"><button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button></td>
+        <td style="padding:7px 8px"><button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button></td>
       </tr>`).join('')}</tbody>
     </table>`;
 };
+
+// ---- SUPPRESSION ----
+window._deleteTarget=null; // {type:'retour'|'entrepot', id, numero}
+function demanderSuppression(type, id, numero){
+  window._deleteTarget={type,id,numero};
+  document.getElementById('delete-num-label').textContent=numero||id;
+  document.getElementById('modal-delete').classList.add('open');
+}
+function closeDeleteModal(){
+  document.getElementById('modal-delete').classList.remove('open');
+  window._deleteTarget=null;
+}
+async function confirmerSuppression(){
+  const t=window._deleteTarget;if(!t)return;
+  const path=t.type==='retour'?'retours/'+t.id:'retours_entrepot/'+t.id;
+  try{
+    await window._remove(window._ref(window._db,path));
+    closeDeleteModal();
+    showToast('Fiche '+t.numero+' supprimée.');
+  }catch(e){showToast('Erreur suppression : '+e.message);}
+}
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 document.getElementById('date-display').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
