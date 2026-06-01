@@ -1262,11 +1262,12 @@ window.renderRetours=function(filter){
           <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1rem">
             <thead>
               <tr style="border-bottom:1.5px solid var(--gray-light)">
-                <th style="padding:7px 8px;text-align:left;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:22%">Produit</th>
-                <th style="padding:7px 8px;text-align:center;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:10%">Reçu</th>
-                <th style="padding:7px 8px;text-align:center;color:#15803d;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:28%">✓ Remise en stock</th>
-                <th style="padding:7px 8px;text-align:center;color:#dc2626;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:22%">✗ Destruction</th>
-                <th style="padding:7px 8px;text-align:center;color:#b45309;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:18%">Manque</th>
+                <th style="padding:7px 8px;text-align:left;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:20%">Produit</th>
+                <th style="padding:7px 8px;text-align:center;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:8%">Reçu</th>
+                <th style="padding:7px 8px;text-align:center;color:#15803d;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:22%">✓ En stock</th>
+                <th style="padding:7px 8px;text-align:center;color:#dc2626;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:20%">✗ Destruction</th>
+                <th style="padding:7px 8px;text-align:center;color:#b45309;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:16%">Manque</th>
+                <th style="padding:7px 8px;text-align:center;color:#1d4ed8;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:14%">Solde</th>
               </tr>
             </thead>
             <tbody>
@@ -1276,32 +1277,40 @@ window.renderRetours=function(filter){
                 const qStock=ctrl.qStock!=null?ctrl.qStock:'';
                 const qDestroy=ctrl.qDestroy!=null?ctrl.qDestroy:'';
                 const qManque=ctrl.qManque!=null?ctrl.qManque:'';
+                const solde=recu-(parseInt(qStock)||0)-(parseInt(qDestroy)||0);
+                const soldeColor=solde>0?'#1d4ed8':solde<0?'#dc2626':'#15803d';
+                const soldeBg=solde>0?'#dbeafe':solde<0?'#fee2e2':'#dcfce7';
                 return `<tr style="border-bottom:1px solid #f5f3ee">
                   <td style="padding:7px 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nom}<br><span style="font-weight:400;color:var(--gray);font-size:11px">${p.origine?'📍 '+p.origine:''}</span></td>
                   <td style="padding:7px 8px;text-align:center;font-weight:700">${recu||'—'}</td>
                   <td style="padding:7px 8px">
-                    <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                    <div style="display:flex;align-items:center;gap:5px;justify-content:center">
                       <input type="number" min="0" max="${recu}" value="${qStock}" placeholder="0"
-                        style="width:55px;text-align:center;border:1.5px solid #bbf7d0;border-radius:8px;padding:5px;background:#f0fdf4;color:#15803d;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        style="width:50px;text-align:center;border:1.5px solid #bbf7d0;border-radius:8px;padding:5px;background:#f0fdf4;color:#15803d;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        oninput="updateSoldeRow(this)"
                         onchange="setControleArticle('${fid}',${pi},'qStock',this.value)">
-                      <span style="font-size:11px;color:#15803d">colis</span>
+                      <span style="font-size:10px;color:#15803d">colis</span>
                     </div>
                   </td>
                   <td style="padding:7px 8px">
-                    <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                    <div style="display:flex;align-items:center;gap:5px;justify-content:center">
                       <input type="number" min="0" max="${recu}" value="${qDestroy}" placeholder="0"
-                        style="width:55px;text-align:center;border:1.5px solid #fecaca;border-radius:8px;padding:5px;background:#fff5f5;color:#dc2626;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        style="width:50px;text-align:center;border:1.5px solid #fecaca;border-radius:8px;padding:5px;background:#fff5f5;color:#dc2626;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        oninput="updateSoldeRow(this)"
                         onchange="setControleArticle('${fid}',${pi},'qDestroy',this.value)">
-                      <span style="font-size:11px;color:#dc2626">colis</span>
+                      <span style="font-size:10px;color:#dc2626">colis</span>
                     </div>
                   </td>
                   <td style="padding:7px 8px">
-                    <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                    <div style="display:flex;align-items:center;gap:5px;justify-content:center">
                       <input type="number" min="0" value="${qManque}" placeholder="0"
-                        style="width:55px;text-align:center;border:1.5px solid #fde68a;border-radius:8px;padding:5px;background:#fffbf0;color:#b45309;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        style="width:50px;text-align:center;border:1.5px solid #fde68a;border-radius:8px;padding:5px;background:#fffbf0;color:#b45309;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
                         onchange="setControleArticle('${fid}',${pi},'qManque',this.value)">
-                      <span style="font-size:11px;color:#b45309">colis</span>
+                      <span style="font-size:10px;color:#b45309">colis</span>
                     </div>
+                  </td>
+                  <td style="padding:7px 8px;text-align:center">
+                    <span class="solde-badge" style="display:inline-block;min-width:36px;padding:3px 8px;border-radius:20px;font-size:12px;font-weight:700;background:${soldeBg};color:${soldeColor}">${solde}</span>
                   </td>
                 </tr>`;
               }).join('')}
@@ -1338,6 +1347,55 @@ window.renderRetours=function(filter){
 
 function toggleDetail(id){window.openId=window.openId===id?null:id;renderRetours(window.currentFilter);}
 
+// Met à jour le solde en temps réel dans la même ligne
+function updateSoldeRow(input){
+  const row=input.closest('tr');
+  if(!row)return;
+  const allInputs=row.querySelectorAll('input[type=number]');
+  // recu est dans la 2e colonne (text, not input)
+  const recuCell=row.querySelector('td:nth-child(2)');
+  const recu=parseInt(recuCell?.textContent)||0;
+  let stock=0,destroy=0;
+  allInputs.forEach(inp=>{
+    const onch=inp.getAttribute('onchange')||inp.getAttribute('oninput')||'';
+    if(inp.getAttribute('onchange')?.includes("'qStock'")) stock=parseInt(inp.value)||0;
+    if(inp.getAttribute('onchange')?.includes("'qDestroy'")) destroy=parseInt(inp.value)||0;
+  });
+  // fallback: 1st green input = stock, 1st red = destroy
+  const greens=row.querySelectorAll('input[style*="#f0fdf4"]');
+  const reds=row.querySelectorAll('input[style*="#fff5f5"]');
+  if(greens[0]) stock=parseInt(greens[0].value)||0;
+  if(reds[0]) destroy=parseInt(reds[0].value)||0;
+  const solde=recu-stock-destroy;
+  const badge=row.querySelector('.solde-badge');
+  if(badge){
+    badge.textContent=solde;
+    const color=solde>0?'#1d4ed8':solde<0?'#dc2626':'#15803d';
+    const bg=solde>0?'#dbeafe':solde<0?'#fee2e2':'#dcfce7';
+    badge.style.color=color;
+    badge.style.background=bg;
+  }
+  // Update recap
+  const card=input.closest('.detail-overlay');
+  if(!card)return;
+  const recap=card.querySelector('.controle-recap');
+  if(!recap)return;
+  let totS=0,totD=0,totM=0;
+  card.querySelectorAll('tbody tr').forEach(r=>{
+    const g=r.querySelectorAll('input[style*="#f0fdf4"]');
+    const rd=r.querySelectorAll('input[style*="#fff5f5"]');
+    const y=r.querySelectorAll('input[style*="#fffbf0"]');
+    if(g[0])totS+=parseInt(g[0].value)||0;
+    if(rd[0])totD+=parseInt(rd[0].value)||0;
+    if(y[0])totM+=parseInt(y[0].value)||0;
+  });
+  const parts=[];
+  if(totS>0)parts.push('<span style="color:#15803d;font-weight:600">✓ '+totS+' en stock</span>');
+  if(totD>0)parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totD+' détruits</span>');
+  if(totM>0)parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totM+' manquants</span>');
+  recap.innerHTML=parts.length?'Récap : '+parts.join(' · '):'Saisir les quantités ci-dessus.';
+}
+
 // Contrôle par article — mise à jour locale instantanée + sauvegarde Firebase
 async function setControleArticle(fid, pi, field, val){
   const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
@@ -1364,16 +1422,38 @@ async function setControleArticle(fid, pi, field, val){
 
 async function validerControle(fid){
   const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
-  const products=fiche.products.map(p=>({...p,controle:p.controle||{}}));
-  // Détermine statut global : traité si au moins un article a une décision
-  const aDecision=products.some(p=>p.controle.qStock||p.controle.qDestroy||p.controle.qManque);
+
+  // Lire les valeurs directement depuis le DOM (champs saisis mais pas encore sauvegardés)
+  const card=document.querySelector('.detail-overlay.open');
+  const products=fiche.products.map((p,pi)=>{
+    // Cherche les inputs de contrôle pour cet article dans le DOM ouvert
+    const rows=document.querySelectorAll('.controle-recap')
+      ? document.querySelectorAll(`[onchange*="setControleArticle('${fid}',${pi},"]`)
+      : [];
+    let qStock=parseInt((p.controle||{}).qStock)||0;
+    let qDestroy=parseInt((p.controle||{}).qDestroy)||0;
+    let qManque=parseInt((p.controle||{}).qManque)||0;
+    rows.forEach(input=>{
+      const attr=input.getAttribute('onchange')||'';
+      if(attr.includes("'qStock'")) qStock=parseInt(input.value)||0;
+      if(attr.includes("'qDestroy'")) qDestroy=parseInt(input.value)||0;
+      if(attr.includes("'qManque'")) qManque=parseInt(input.value)||0;
+    });
+    const recu=parseInt(p.qteRecue)||0;
+    const solde=recu-qStock-qDestroy;
+    return {...p, controle:{qStock,qDestroy,qManque,solde:Math.max(0,solde)}};
+  });
+
+  const aDecision=products.some(p=>(p.controle.qStock||0)+(p.controle.qDestroy||0)+(p.controle.qManque||0)>0);
   try{
     await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{
       products,
-      statut: aDecision?'traite':'en_attente',
-      commentPrep: fiche.commentPrep||''
+      statut:'traite',
+      commentPrep:fiche.commentPrep||''
     });
-    showToast('Contrôle enregistré !');
+    showToast('Contrôle validé et fiche traitée !');
+    // Fermer le détail
+    window.openId=null;
   }catch(e){showToast('Erreur : '+e.message);}
 }
 
