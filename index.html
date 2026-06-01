@@ -333,7 +333,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <button class="btn-pdf" onclick="genererPDF(window._modalFiche)" style="width:100%;justify-content:center;margin-bottom:1rem"><i class="ti ti-file-download"></i> Télécharger le PDF</button>
     <div class="section-header"><i class="ti ti-message-share"></i> Envoyer un message récap</div>
     <div class="share-options">
-      <button class="btn-green" onclick="genererMessage('attendu')"><i class="ti ti-truck-delivery"></i> Retour attendu</button>
+      <button class="btn-green" onclick="genererMessage('attendu')"><i class="ti ti-truck-delivery"></i> Retour client</button>
       <button class="btn-purple" onclick="genererMessage('inattendu')"><i class="ti ti-alert-circle"></i> Arrivage inattendu</button>
     </div>
     <div id="recap-message-zone" style="display:none">
@@ -1080,7 +1080,7 @@ function genererMessage(type){
   if(type==='attendu'){
     msg=source==='commercial'
       ?`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n🏪 Client : ${fiche.client}\n📋 BL : ${fiche.bl}\n🚛 Transporteur : ${fiche.transporteur||'—'}\n📅 Date : ${fiche.dateLiv||fiche.date}\n👤 Commercial : ${fiche.commercial||'—'}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`
-      :`📦 *ARRIVAGE ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n📅 ${fiche.date} · 👤 ${fiche.agent}\n${fiche.clientConnu?'🏪 Client : '+fiche.clientConnu+'\n':''}${fiche.transporteurConnu?'🚛 Transporteur : '+fiche.transporteurConnu+'\n':''}\n*Articles reçus :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+      :`📦 *RETOUR CLIENT ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n📅 ${fiche.date} · 👤 ${fiche.agent}\n${fiche.clientConnu?'🏪 Client : '+fiche.clientConnu+'\n':''}${fiche.transporteurConnu?'🚛 Transporteur : '+fiche.transporteurConnu+'\n':''}\n*Articles reçus :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
 
   }else{
     if(source==='entrepot'){
