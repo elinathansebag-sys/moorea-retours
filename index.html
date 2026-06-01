@@ -18,15 +18,15 @@
 body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);background:var(--cream);min-height:100vh}
 .topbar{background:var(--dark);padding:0 2rem;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--gold-border)}
 .topbar-logo .name{font-size:15px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase}
-.topbar-logo .sub{font-size:11px;color:rgba(200,168,75,.45);letter-spacing:.5px}
-.sync-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,.5)}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#444;flex-shrink:0}
+.topbar-logo .sub{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.5px}
+.sync-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,.7)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0}
 .sync-dot.ok{background:#22c55e}.sync-dot.loading{background:var(--gold);animation:pulse 1s infinite}.sync-dot.error{background:#ef4444}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 .nav-wrap{background:var(--dark);border-bottom:1.5px solid var(--gold-border);padding:0 2rem}
 .nav{display:flex;max-width:960px;margin:0 auto;overflow-x:auto}
-.nav-btn{padding:14px 18px;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;color:rgba(255,255,255,.4);letter-spacing:.3px;transition:all .15s;display:flex;align-items:center;gap:7px;white-space:nowrap;margin-bottom:-1.5px}
-.nav-btn:hover{color:rgba(200,168,75,.7)}.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-btn{padding:14px 18px;background:transparent;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;color:rgba(255,255,255,.65);letter-spacing:.3px;transition:all .15s;display:flex;align-items:center;gap:7px;white-space:nowrap;margin-bottom:-1.5px}
+.nav-btn:hover{color:#fff}.nav-btn.active{color:#fff;border-bottom-color:var(--gold)}
 .nav-btn .notif{background:var(--gold);color:var(--dark);font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:2px}
 .date-bar{max-width:960px;margin:0 auto;padding:.75rem 1rem;font-size:12px;color:var(--gray);letter-spacing:.3px}
 .app{max-width:960px;margin:0 auto;padding:0 1rem 3rem}
@@ -66,6 +66,8 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .btn-green:hover{background:#bbf7d0}
 .btn-purple{padding:11px 22px;background:#f3e8ff;color:#7c3aed;border:1.5px solid #e9d5ff;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
 .btn-purple:hover{background:#e9d5ff}
+.btn-pdf{padding:11px 22px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.btn-pdf:hover{background:#fecaca}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:1.25rem;flex-wrap:wrap}
 .separator{height:1.5px;background:var(--gray-light);margin:1.25rem 0}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600}
@@ -77,7 +79,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .badge-manque{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
 .badge-ndecl{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
 .badge-rattache{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
-.num-fiche{font-size:11px;font-weight:700;color:var(--gold);background:rgba(200,168,75,.12);border:1px solid var(--gold-border);border-radius:6px;padding:2px 8px;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
+.num-fiche{font-size:11px;font-weight:700;color:var(--gold);background:rgba(200,168,75,.12);border:1px solid var(--gold-border);border-radius:6px;padding:2px 8px;letter-spacing:.5px}
 .retour-card{background:var(--white);border:1.5px solid var(--gray-light);border-radius:16px;padding:1.1rem 1.4rem;margin-bottom:10px;cursor:pointer;transition:all .15s}
 .retour-card:hover{border-color:rgba(200,168,75,.5);box-shadow:0 4px 16px rgba(200,168,75,.08)}
 .retour-card.non-declare{border-color:#fde68a;background:#fffdf5}
@@ -102,28 +104,27 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .stat-card .num{font-size:26px;font-weight:700}.stat-card .lbl{font-size:11px;color:var(--gray);margin-top:3px;text-transform:uppercase;letter-spacing:.4px}
 .stat-card.warn{border-color:rgba(200,168,75,.4);background:#fffbf0}.stat-card.warn .num{color:var(--gold)}
 .tag-motif{background:#fef3c7;color:#b45309;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
-.alert-manque{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:12px;color:#b45309;display:flex;align-items:center;gap:8px;margin:.75rem 0}
 .alert-ndecl{background:#fff8e1;border:1px solid #ffd54f;border-radius:10px;padding:10px 14px;font-size:13px;color:#b45309;display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
 .filter-bar{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
 .filter-btn{padding:7px 16px;border:1.5px solid var(--gray-light);border-radius:20px;background:transparent;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--gray);transition:all .15s}
 .filter-btn:hover{border-color:rgba(200,168,75,.4);color:var(--gold)}
-.filter-btn.active{background:var(--dark);color:var(--gold);border-color:var(--dark)}
+.filter-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}
 .empty-state{text-align:center;padding:3.5rem 1rem;color:#bbb}
 .empty-state i{font-size:44px;display:block;margin-bottom:14px;opacity:.3}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:var(--gold);padding:13px 22px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid var(--gold-border)}
 .toast.show{opacity:1}
-/* SUCCESS MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:1rem}
 .modal-bg.open{display:flex}
-.modal{background:var(--white);border-radius:20px;padding:2rem;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal{background:var(--white);border-radius:20px;padding:2rem;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .modal-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:.5rem;display:flex;align-items:center;gap:8px}
 .modal-title i{color:var(--gold);font-size:20px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap}
 .recap-box{background:var(--cream);border:1.5px solid var(--gray-light);border-radius:12px;padding:1rem 1.2rem;font-size:13px;line-height:1.9;margin:1rem 0;white-space:pre-wrap;font-family:'DM Sans',sans-serif;color:var(--dark)}
 .share-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1rem}
 @media(max-width:400px){.share-options{grid-template-columns:1fr}}
-.num-fiche-big{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:1px;text-align:center;margin:.5rem 0}
+.num-fiche-big{font-size:30px;font-weight:700;color:var(--gold);letter-spacing:1px;text-align:center;margin:.5rem 0}
 .num-fiche-label{font-size:11px;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.5px}
+.info-box{background:#fffbf0;border:1.5px solid rgba(200,168,75,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:#92600a;margin-bottom:1rem;display:flex;align-items:flex-start;gap:8px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -176,7 +177,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
         </tr></thead>
         <tbody id="products-body"></tbody>
       </table>
-      <button class="btn-add-row" onclick="addRow()"><i class="ti ti-plus"></i> Ajouter un produit</button>
+      <button class="btn-add-row" onclick="addRow('products-body')"><i class="ti ti-plus"></i> Ajouter un produit</button>
       <div class="separator"></div>
       <div class="form-group"><label>Commentaires</label><textarea id="f-comment" placeholder="Informations complémentaires..."></textarea></div>
     </div>
@@ -190,25 +191,28 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
   <div class="page" id="page-entrepot">
     <div class="section-title">Retour reçu non déclaré</div>
     <div class="card">
-      <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">Un colis est arrivé sans déclaration préalable ? Remplis cette fiche. Le commercial pourra la rattacher à une commande.</p>
-      <div class="section-header"><i class="ti ti-box"></i> Description du colis reçu</div>
+      <div class="info-box"><i class="ti ti-info-circle" style="flex-shrink:0;margin-top:1px"></i>
+        <span>Remplis cette fiche quand un colis arrive <strong>sans déclaration du commercial</strong>. Seul le commercial peut rattacher la fiche à un client et un BL.</span>
+      </div>
+      <div class="section-header"><i class="ti ti-user"></i> Informations entrepôt</div>
       <div class="form-row">
-        <div class="form-group"><label>Reçu par (entrepôt)</label><input type="text" id="e-agent" placeholder="Votre prénom"></div>
+        <div class="form-group"><label>Reçu par</label><input type="text" id="e-agent" placeholder="Votre prénom"></div>
         <div class="form-group"><label>Date de réception</label><input type="date" id="e-date"></div>
       </div>
-      <div class="form-group"><label>Description du contenu</label><input type="text" id="e-description" placeholder="ex : 12 cagettes haricots verts"></div>
-      <div class="form-row">
-        <div class="form-group"><label>N° de lot (si visible)</label><input type="text" id="e-lot" placeholder="optionnel"></div>
-        <div class="form-group"><label>Quantité</label><input type="number" id="e-qte" placeholder="ex : 12" min="0"></div>
-      </div>
-      <div class="form-group"><label>État apparent</label>
-        <select id="e-etat">
-          <option value="">-- Sélectionner --</option>
-          <option>Bon état</option><option>Emballage abîmé</option><option>Produit endommagé</option>
-          <option>Moisissure visible</option><option>Pourriture partielle</option><option>Autre</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Commentaires</label><textarea id="e-comment" placeholder="Toute information utile pour le commercial..."></textarea></div>
+      <div class="section-header"><i class="ti ti-box"></i> Articles reçus</div>
+      <table class="products-table">
+        <thead><tr>
+          <th style="width:30%">Description</th>
+          <th style="width:14%">N° de lot</th>
+          <th style="width:14%">Quantité</th>
+          <th style="width:34%">État apparent</th>
+          <th style="width:8%"></th>
+        </tr></thead>
+        <tbody id="entrepot-products-body"></tbody>
+      </table>
+      <button class="btn-add-row" onclick="addEntrepotRow()"><i class="ti ti-plus"></i> Ajouter un article</button>
+      <div class="separator"></div>
+      <div class="form-group"><label>Commentaires généraux</label><textarea id="e-comment" placeholder="Informations utiles pour le commercial..."></textarea></div>
     </div>
     <div class="form-actions">
       <button class="btn-secondary" onclick="resetEntrepot()">Réinitialiser</button>
@@ -241,20 +245,22 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
       <div id="all-retours-table"></div>
     </div>
   </div>
-
 </div>
 
-<!-- MODAL SUCCÈS + PARTAGE -->
+<!-- MODAL SUCCÈS -->
 <div class="modal-bg" id="modal-success">
   <div class="modal">
     <div style="text-align:center;margin-bottom:1.25rem">
       <div style="font-size:40px;margin-bottom:.5rem">✅</div>
       <div class="num-fiche-label">Numéro de fiche</div>
       <div class="num-fiche-big" id="modal-num-fiche">RC-2026-001</div>
-      <div style="font-size:13px;color:var(--gray)" id="modal-sous-titre">Fiche enregistrée avec succès</div>
+      <div style="font-size:13px;color:var(--gray)" id="modal-sous-titre">Fiche enregistrée</div>
     </div>
+
+    <div class="section-header"><i class="ti ti-file-type-pdf"></i> Télécharger la fiche</div>
+    <button class="btn-pdf" onclick="genererPDF(window._modalFiche)" style="width:100%;justify-content:center;margin-bottom:1rem"><i class="ti ti-file-download"></i> Télécharger le PDF</button>
+
     <div class="section-header"><i class="ti ti-message-share"></i> Envoyer un message récap</div>
-    <p style="font-size:12px;color:var(--gray);margin-bottom:.75rem">Choisis le type de message à envoyer à l'équipe :</p>
     <div class="share-options">
       <button class="btn-green" onclick="genererMessage('attendu')"><i class="ti ti-truck-delivery"></i> Retour attendu</button>
       <button class="btn-purple" onclick="genererMessage('inattendu')"><i class="ti ti-alert-circle"></i> Arrivage inattendu</button>
@@ -262,14 +268,12 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <div id="recap-message-zone" style="display:none">
       <div class="recap-box" id="recap-message-text"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:.75rem">
-        <button class="btn-primary" onclick="copierMessage()"><i class="ti ti-copy"></i> Copier le message</button>
+        <button class="btn-primary" onclick="copierMessage()"><i class="ti ti-copy"></i> Copier</button>
         <button class="btn-secondary" onclick="partagerWhatsapp()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
         <button class="btn-secondary" onclick="partagerEmail()"><i class="ti ti-mail"></i> Email</button>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="fermerModalSuccess()">Fermer</button>
-    </div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="fermerModalSuccess()">Fermer</button></div>
   </div>
 </div>
 
@@ -277,18 +281,18 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 <div class="modal-bg" id="modal-rattach">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-link"></i> Rattacher à une commande</div>
-    <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">Renseigne les informations de la commande correspondante à ce retour entrepôt.</p>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">Renseigne le client et le BL correspondant à ce retour entrepôt.</p>
     <div id="modal-entrepot-recap" style="background:var(--cream);border-radius:10px;padding:12px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--gray);line-height:1.8"></div>
     <div class="form-row">
       <div class="form-group"><label>Client</label><input type="text" id="r-client" placeholder="ex : Carrefour Billy"></div>
       <div class="form-group"><label>N° du BL</label><input type="text" id="r-bl" placeholder="ex : 2026054670"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Transporteur</label><input type="text" id="r-transporteur" placeholder="ex : Mesguen"></div>
+      <div class="form-group"><label>Transporteur</label><input type="text" id="r-transporteur"></div>
       <div class="form-group"><label>Date de livraison</label><input type="date" id="r-date-livraison"></div>
     </div>
     <div class="form-group"><label>Commercial</label><input type="text" id="r-commercial" placeholder="Votre nom"></div>
-    <div class="form-group"><label>Commentaires</label><textarea id="r-comment" placeholder="Informations complémentaires..."></textarea></div>
+    <div class="form-group"><label>Commentaires</label><textarea id="r-comment"></textarea></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeRattachModal()">Annuler</button>
       <button class="btn-primary" onclick="confirmerRattachement()"><i class="ti ti-link"></i> Rattacher et créer la fiche</button>
@@ -297,6 +301,9 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <!-- FIREBASE -->
 <script type="module">
@@ -312,75 +319,233 @@ const firebaseConfig = {
   messagingSenderId: "57607281213",
   appId: "1:57607281213:web:f00e57e7d8cb7166c9a854"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-window._db = db; window._ref = ref; window._push = push; window._update = update; window._get = get;
+window._db=db; window._ref=ref; window._push=push; window._update=update; window._get=get;
 
 setSyncStatus('loading','Connexion...');
 
-onValue(ref(db,'retours'), snap => {
-  const data = snap.val();
-  window.retours = data ? Object.entries(data).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)) : [];
-  const ap = document.querySelector('.page.active');
+onValue(ref(db,'retours'), snap=>{
+  const data=snap.val();
+  window.retours=data?Object.entries(data).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)):[];
+  const ap=document.querySelector('.page.active');
   if(ap?.id==='page-preparateur') window.renderRetours(window.currentFilter);
   if(ap?.id==='page-suivi') window.renderSuivi();
   updateSyncLabel();
-}, err=>{ setSyncStatus('error','Erreur'); showToast('Erreur Firebase : '+err.message); });
+},err=>{setSyncStatus('error','Erreur');showToast('Erreur Firebase : '+err.message);});
 
-onValue(ref(db,'retours_entrepot'), snap => {
-  const data = snap.val();
-  window.retoursEntrepot = data ? Object.entries(data).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)) : [];
+onValue(ref(db,'retours_entrepot'), snap=>{
+  const data=snap.val();
+  window.retoursEntrepot=data?Object.entries(data).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)):[];
   updateNotifEntrepot(); updateAlerteNdecl();
-  const ap = document.querySelector('.page.active');
+  const ap=document.querySelector('.page.active');
   if(ap?.id==='page-entrepot') window.renderEntrepotList();
   updateSyncLabel();
 });
 
-// Compteur global de fiches pour numérotation
-onValue(ref(db,'compteur'), snap => {
-  window._compteur = snap.val() || 0;
-});
+onValue(ref(db,'compteur'),snap=>{ window._compteur=snap.val()||0; });
 
 function updateSyncLabel(){
-  const total=(window.retours||[]).length+(window.retoursEntrepot||[]).length;
-  setSyncStatus('ok',total+' fiche'+(total!==1?'s':'')+' · Temps réel');
+  const t=(window.retours||[]).length+(window.retoursEntrepot||[]).length;
+  setSyncStatus('ok',t+' fiche'+(t!==1?'s':'')+' · Temps réel');
 }
-function setSyncStatus(s,l){ document.getElementById('sync-dot').className='sync-dot '+s; document.getElementById('sync-label').textContent=l; }
+function setSyncStatus(s,l){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-label').textContent=l;}
 window.setSyncStatus=setSyncStatus;
 </script>
 
 <script>
-window.retours=[];window.retoursEntrepot=[];window.currentFilter='all';window.openId=null;window.rattachId=null;
-window._compteur=0;
+window.retours=[];window.retoursEntrepot=[];window.currentFilter='all';window.openId=null;window.rattachId=null;window._compteur=0;
 const SITE_URL='https://moorea-retours.vercel.app';
+
+// ---- PDF ----
+function genererPDF(fiche){
+  if(!fiche){showToast('Aucune fiche à exporter.');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,ml=18,mr=18,cw=W-ml-mr;
+  let y=18;
+
+  // Header bande noire
+  doc.setFillColor(10,10,10);
+  doc.rect(0,0,W,28,'F');
+  doc.setFillColor(200,168,75);
+  doc.rect(0,27,W,1,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(200,168,75);
+  doc.text('MOOREA · RETOURS CLIENTS',ml,11);
+  doc.setFontSize(9);
+  doc.setTextColor(255,255,255);
+  doc.text('Gestion des retours · Fruits & Légumes',ml,18);
+  // Numéro fiche haut droite
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(200,168,75);
+  doc.text(fiche.numero||'—',W-mr,11,{align:'right'});
+  doc.setFontSize(8);
+  doc.setTextColor(180,180,180);
+  doc.text('N° FICHE',W-mr,17,{align:'right'});
+
+  y=36;
+
+  // Titre section
+  function sectionTitle(title){
+    doc.setFillColor(245,243,238);
+    doc.rect(ml,y-4,cw,8,'F');
+    doc.setDrawColor(200,168,75);
+    doc.setLineWidth(0.4);
+    doc.line(ml,y-4,ml,y+4);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(100,100,100);
+    doc.text(title.toUpperCase(),ml+4,y+0.5);
+    y+=10;
+  }
+
+  function infoLine(label,value,x2col){
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(120,120,120);
+    doc.text(label,x2col||ml,y);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(20,20,20);
+    doc.text(String(value||'—'),(x2col||ml)+28,y);
+    y+=6;
+  }
+
+  // Infos générales
+  sectionTitle('Informations générales');
+  const col2=ml+cw/2;
+  const prevY=y;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120,120,120);
+  doc.text('Client',ml,y);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(fiche.client||'—',ml+22,y);
+  doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
+  doc.text('N° BL',col2,y);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(fiche.bl||'—',col2+16,y);
+  y+=6;
+  doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
+  doc.text('Transporteur',ml,y);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(fiche.transporteur||'—',ml+28,y);
+  doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
+  doc.text('Date livraison',col2,y);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(fiche.dateLiv||fiche.date||'—',col2+30,y);
+  y+=6;
+  doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
+  doc.text('Commercial',ml,y);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(fiche.commercial||'—',ml+25,y);
+  doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);
+  doc.text('Date fiche',col2,y);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(fiche.date||'—',col2+23,y);
+  y+=10;
+
+  // Tableau produits
+  const products=fiche.products||[];
+  if(products.length){
+    sectionTitle('Produits retournés');
+    // En-têtes tableau
+    const cols=[['PRODUIT',62],['N° LOT',25],['ATT.',16],['REÇU',16],['ÉCART',16],['MOTIF',39]];
+    let cx=ml;
+    doc.setFillColor(230,224,210);
+    doc.rect(ml,y-4,cw,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(80,80,80);
+    cols.forEach(([h,w])=>{doc.text(h,cx+2,y);cx+=w;});
+    y+=5;
+    doc.setDrawColor(220,213,200);doc.setLineWidth(0.3);
+
+    products.forEach((p,i)=>{
+      if(i%2===0){doc.setFillColor(252,250,247);doc.rect(ml,y-3.5,cw,7,'F');}
+      const att=parseInt(p.qteAttendue)||0,rec=parseInt(p.qteRecue)||0;
+      const diff=(p.qteAttendue&&p.qteRecue)?rec-att:null;
+      const diffStr=diff===null?'—':diff<0?String(diff):diff===0?'OK':'+'+diff;
+      cx=ml;
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(20,20,20);
+      const nomLines=doc.splitTextToSize(p.nom||'—',58);
+      doc.text(nomLines,cx+2,y);cx+=cols[0][1];
+      doc.setFont('helvetica','normal');doc.setTextColor(80,80,80);
+      doc.text(p.lot||'—',cx+2,y);cx+=cols[1][1];
+      doc.setTextColor(20,20,20);
+      doc.text(p.qteAttendue||'—',cx+2,y);cx+=cols[2][1];
+      doc.text(p.qteRecue||'—',cx+2,y);cx+=cols[3][1];
+      if(diff!==null&&diff<0){doc.setTextColor(180,83,9);}else{doc.setTextColor(21,128,61);}
+      doc.text(diffStr,cx+2,y);cx+=cols[4][1];
+      doc.setTextColor(80,80,80);doc.setFont('helvetica','normal');
+      const motifLines=doc.splitTextToSize(p.motif||'—',35);
+      doc.text(motifLines,cx+2,y);
+      y+=(nomLines.length>1||motifLines.length>1)?9:7;
+      doc.setDrawColor(240,237,230);doc.line(ml,y-1.5,ml+cw,y-1.5);
+    });
+    y+=4;
+  }
+
+  // Contrôle interne
+  sectionTitle('Contrôle interne');
+  const boxW=cw/2-3;
+  // Conforme
+  doc.setDrawColor(21,128,61);doc.setLineWidth(0.5);doc.rect(ml,y-2,boxW,14);
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(21,128,61);
+  doc.text('✓  MARCHANDISE CONFORME',ml+3,y+2);
+  doc.setDrawColor(200,200,200);doc.setLineWidth(0.4);
+  doc.rect(ml+3,y+5,4,4);
+  if(fiche.decision==='stock'){doc.setFillColor(21,128,61);doc.rect(ml+4,y+6,2,2,'F');}
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(40,40,40);
+  doc.text('Remise en stock',ml+10,y+9);
+  // Non conforme
+  const col2x=ml+boxW+6;
+  doc.setDrawColor(220,38,38);doc.setLineWidth(0.5);doc.rect(col2x,y-2,boxW,14);
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(220,38,38);
+  doc.text('✗  MARCHANDISE NON CONFORME',col2x+3,y+2);
+  doc.setDrawColor(200,200,200);doc.setLineWidth(0.4);
+  doc.rect(col2x+3,y+5,4,4);
+  if(fiche.decision==='destruction'){doc.setFillColor(220,38,38);doc.rect(col2x+4,y+6,2,2,'F');}
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(40,40,40);
+  doc.text('Destruction',col2x+10,y+9);
+  y+=20;
+
+  // Commentaires
+  const allComments=[fiche.comment,fiche.commentPrep].filter(Boolean);
+  if(allComments.length){
+    sectionTitle('Commentaires');
+    allComments.forEach(c=>{
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(60,60,60);
+      const lines=doc.splitTextToSize(c,cw-4);
+      doc.text(lines,ml+2,y);
+      y+=lines.length*5+3;
+    });
+  }
+
+  // Footer
+  const fy=287;
+  doc.setFillColor(10,10,10);doc.rect(0,fy-4,W,14,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(150,150,150);
+  doc.text('MOOREA COMMERCIAL FRUITS · 69 rue de Perpignan · 94632 Rungis cedex',W/2,fy+1,{align:'center'});
+  doc.setTextColor(200,168,75);
+  doc.text(SITE_URL,W/2,fy+5,{align:'center'});
+
+  doc.save('fiche-retour-'+(fiche.numero||'export')+'.pdf');
+  showToast('PDF téléchargé !');
+}
+window.genererPDF=genererPDF;
 
 // ---- NUMÉROTATION ----
 async function getNextNumero(){
   try{
-    const snap = await window._get(window._ref(window._db,'compteur'));
-    const current = (snap.val()||0)+1;
+    const snap=await window._get(window._ref(window._db,'compteur'));
+    const current=(snap.val()||0)+1;
     await window._update(window._ref(window._db,'/'),{compteur:current});
-    const year = new Date().getFullYear();
-    return 'RC-'+year+'-'+String(current).padStart(3,'0');
-  }catch(e){ return 'RC-'+Date.now(); }
+    return 'RC-'+new Date().getFullYear()+'-'+String(current).padStart(3,'0');
+  }catch(e){return 'RC-'+Date.now();}
 }
 
 // ---- NOTIFICATIONS ----
 function updateNotifEntrepot(){
   const n=(window.retoursEntrepot||[]).filter(r=>!r.rattache).length;
   const b=document.getElementById('notif-entrepot');
-  b.textContent=n; b.style.display=n>0?'inline-block':'none';
+  b.textContent=n;b.style.display=n>0?'inline-block':'none';
 }
 function updateAlerteNdecl(){
   const nr=(window.retoursEntrepot||[]).filter(r=>!r.rattache);
-  const div=document.getElementById('alerte-ndecl'); if(!div) return;
+  const div=document.getElementById('alerte-ndecl');if(!div)return;
   if(nr.length>0){
     div.style.display='block';
     div.innerHTML=`<div class="alert-ndecl"><i class="ti ti-alert-circle" style="font-size:20px;flex-shrink:0"></i>
       <div style="flex:1"><strong>${nr.length} retour${nr.length>1?'s':''} non déclaré${nr.length>1?'s':''}</strong> reçu${nr.length>1?'s':''} en entrepôt — à rattacher à une commande.</div>
       <button class="btn-warn" onclick="showPage('entrepot')"><i class="ti ti-link"></i> Voir et rattacher</button></div>`;
-  } else { div.style.display='none'; }
+  }else{div.style.display='none';}
 }
 
 function showPage(id){
@@ -388,13 +553,13 @@ function showPage(id){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   document.getElementById('btn-'+id).classList.add('active');
-  if(id==='preparateur') renderRetours('all');
-  if(id==='suivi') renderSuivi();
-  if(id==='entrepot') window.renderEntrepotList();
-  if(id==='commercial') updateAlerteNdecl();
+  if(id==='preparateur')renderRetours('all');
+  if(id==='suivi')renderSuivi();
+  if(id==='entrepot')window.renderEntrepotList();
+  if(id==='commercial')updateAlerteNdecl();
 }
 
-// ---- COMMERCIAL ----
+// ---- ROWS COMMERCIAL ----
 function makeRow(){
   const tr=document.createElement('tr');
   tr.innerHTML=`
@@ -417,13 +582,13 @@ function makeRow(){
     <td><button class="btn-del" onclick="delRow(this)"><i class="ti ti-trash"></i></button></td>`;
   return tr;
 }
-function addRow(){ document.getElementById('products-body').appendChild(makeRow()); }
-function delRow(btn){ if(document.querySelectorAll('#products-body tr').length>1) btn.closest('tr').remove(); }
+function addRow(tbodyId){ document.getElementById(tbodyId||'products-body').appendChild(makeRow()); }
+function delRow(btn){ if(btn.closest('tbody').querySelectorAll('tr').length>1) btn.closest('tr').remove(); }
 function updateDiff(input){
   const cell=input.closest('.qte-cell'),inputs=cell.querySelectorAll('input'),badge=cell.querySelector('.qte-diff');
   const att=parseInt(inputs[0].value)||0,recu=parseInt(inputs[1].value)||0;
   if(!inputs[0].value&&!inputs[1].value){badge.style.display='none';return;}
-  const diff=recu-att; badge.style.display='inline-block';
+  const diff=recu-att;badge.style.display='inline-block';
   badge.textContent=diff<0?diff+' colis':diff===0?'OK':'+'+diff;
   badge.className='qte-diff '+(diff<0?'manque':'ok');
 }
@@ -435,10 +600,10 @@ function resetForm(){
 function getProducts(){
   return Array.from(document.querySelectorAll('#products-body tr')).reduce((acc,r)=>{
     const nom=r.querySelector('td:nth-child(1) input').value.trim();
+    if(!nom)return acc;
     const lot=r.querySelector('td:nth-child(2) input').value.trim();
     const qi=r.querySelectorAll('.qte-cell input');
-    const motif=r.querySelector('select').value;
-    if(nom) acc.push({nom,lot,qteAttendue:qi[0].value.trim(),qteRecue:qi[1].value.trim(),motif});
+    acc.push({nom,lot,qteAttendue:qi[0].value.trim(),qteRecue:qi[1].value.trim(),motif:r.querySelector('select').value});
     return acc;
   },[]);
 }
@@ -450,57 +615,75 @@ async function submitRetour(){
   if(!client||!bl||!products.length){showToast('Client, N° BL et au moins un produit requis.');return;}
   const btn=document.getElementById('btn-submit');
   btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Enregistrement...';
-  const numero = await getNextNumero();
-  const fiche={
-    numero,
-    date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
-    client,bl,
-    transporteur:document.getElementById('f-transporteur').value.trim(),
+  const numero=await getNextNumero();
+  const fiche={numero,date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
+    client,bl,transporteur:document.getElementById('f-transporteur').value.trim(),
     dateLiv:document.getElementById('f-date-livraison').value,
     commercial:document.getElementById('f-commercial').value.trim(),
-    comment:document.getElementById('f-comment').value.trim(),
-    products,
+    comment:document.getElementById('f-comment').value.trim(),products,
     hasManque:products.some(p=>p.qteAttendue&&p.qteRecue&&parseInt(p.qteRecue)<parseInt(p.qteAttendue)),
-    statut:'nouveau',decision:null,commentPrep:'',source:'commercial'
-  };
+    statut:'nouveau',decision:null,commentPrep:'',source:'commercial'};
   try{
     await window._push(window._ref(window._db,'retours'),fiche);
-    window._derniereFiche=fiche;
-    resetForm();
-    ouvrirModalSuccess(fiche,'commercial');
+    window._modalFiche=fiche;window._modalSource='commercial';
+    resetForm();ouvrirModalSuccess(fiche,'commercial');
   }catch(e){showToast('Erreur : '+e.message);}
   btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Enregistrer la fiche';
 }
 
-// ---- ENTREPOT ----
-function resetEntrepot(){
-  ['e-agent','e-description','e-lot','e-qte','e-comment'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('e-etat').value='';
+// ---- ROWS ENTREPOT ----
+function makeEntrepotRow(){
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><input type="text" placeholder="Description de l'article"></td>
+    <td><input type="text" placeholder="Lot (opt.)"></td>
+    <td><input type="number" placeholder="Qté" min="0"></td>
+    <td><select>
+      <option value="">-- État --</option>
+      <option>Bon état</option><option>Emballage abîmé</option>
+      <option>Produit endommagé</option><option>Moisissure visible</option>
+      <option>Pourriture partielle</option><option>Autre</option>
+    </select></td>
+    <td><button class="btn-del" onclick="delRow(this)"><i class="ti ti-trash"></i></button></td>`;
+  return tr;
 }
+function addEntrepotRow(){ document.getElementById('entrepot-products-body').appendChild(makeEntrepotRow()); }
+function getEntrepotProducts(){
+  return Array.from(document.querySelectorAll('#entrepot-products-body tr')).reduce((acc,r)=>{
+    const desc=r.querySelector('td:nth-child(1) input').value.trim();
+    if(!desc)return acc;
+    acc.push({
+      nom:desc,
+      lot:r.querySelector('td:nth-child(2) input').value.trim(),
+      qteRecue:r.querySelector('td:nth-child(3) input').value.trim(),
+      qteAttendue:'',
+      motif:r.querySelector('select').value
+    });
+    return acc;
+  },[]);
+}
+function resetEntrepot(){
+  ['e-agent','e-comment'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
+  const tb=document.getElementById('entrepot-products-body');tb.innerHTML='';tb.appendChild(makeEntrepotRow());
+}
+
 async function submitEntrepot(){
   const agent=document.getElementById('e-agent').value.trim();
-  const description=document.getElementById('e-description').value.trim();
-  const etat=document.getElementById('e-etat').value;
-  if(!agent||!description||!etat){showToast('Remplis : reçu par, description et état.');return;}
+  const products=getEntrepotProducts();
+  if(!agent||!products.length){showToast('Remplis : reçu par et au moins un article.');return;}
   const btn=document.getElementById('btn-entrepot-submit');
   btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Envoi...';
-  const numero = await getNextNumero();
-  const fiche={
-    numero,
-    date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
-    agent,description,
-    lot:document.getElementById('e-lot').value.trim(),
-    qte:document.getElementById('e-qte').value.trim(),
-    etat,
-    comment:document.getElementById('e-comment').value.trim(),
-    rattache:false,source:'entrepot'
-  };
+  const numero=await getNextNumero();
+  const fiche={numero,date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
+    agent,products,comment:document.getElementById('e-comment').value.trim(),
+    dateLiv:document.getElementById('e-date').value,
+    rattache:false,source:'entrepot'};
   try{
     await window._push(window._ref(window._db,'retours_entrepot'),fiche);
-    window._derniereFiche=fiche;
-    resetEntrepot();
-    ouvrirModalSuccess(fiche,'entrepot');
+    window._modalFiche={...fiche,client:'(non rattaché)',bl:'—'};
+    window._modalSource='entrepot';
+    resetEntrepot();ouvrirModalSuccess(fiche,'entrepot');
   }catch(e){showToast('Erreur : '+e.message);}
   btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Envoyer au commercial';
 }
@@ -511,157 +694,113 @@ window.renderEntrepotList=function(){
   container.innerHTML=window.retoursEntrepot.map(r=>`
     <div class="retour-card ${r.rattache?'':'non-declare'}">
       <div class="retour-card-header">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span class="num-fiche">${r.numero||'—'}</span>
-          <span style="font-weight:700;font-size:15px">${r.description}</span>
-          ${r.qte?`<span style="color:var(--gray);font-size:12px">× ${r.qte}</span>`:''}
+          <span style="font-weight:700;font-size:14px">${r.products&&r.products.length?r.products[0].nom+(r.products.length>1?' + '+(r.products.length-1)+' autre(s)':''):'—'}</span>
         </div>
         <span class="badge ${r.rattache?'badge-rattache':'badge-ndecl'}">${r.rattache?'✓ Rattaché':'En attente commercial'}</span>
       </div>
       <div class="retour-card-meta">
         <span><i class="ti ti-calendar"></i> ${r.date}</span>
         <span><i class="ti ti-user"></i> ${r.agent}</span>
-        <span><i class="ti ti-package"></i> ${r.etat}</span>
-        ${r.lot?`<span><i class="ti ti-tag"></i> Lot ${r.lot}</span>`:''}
+        <span><i class="ti ti-box"></i> ${(r.products||[]).length} article${(r.products||[]).length>1?'s':''}</span>
+      </div>
+      <div class="retour-products">
+        ${(r.products||[]).map(p=>`<span class="product-tag">${p.nom}${p.qteRecue?' × '+p.qteRecue:''} — ${p.motif||'—'}</span>`).join('')}
       </div>
       ${r.rattache?`<div style="margin-top:8px;font-size:12px;color:#15803d;display:flex;align-items:center;gap:6px"><i class="ti ti-link"></i> Rattaché à : <strong>${r.clientRattache||''}</strong> — BL ${r.blRattache||''}</div>`:''}
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
         ${!r.rattache?`<button class="btn-warn" onclick="ouvrirRattachement('${r.firebaseId}')"><i class="ti ti-link"></i> Rattacher à une commande</button>`:''}
+        <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="genererPDF({...${JSON.stringify({...r,client:r.clientRattache||'(non rattaché)',bl:r.blRattache||'—'})}})"><i class="ti ti-file-download"></i> PDF</button>
         <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="rouvrirPartage('${r.firebaseId}','entrepot')"><i class="ti ti-share"></i> Partager</button>
       </div>
     </div>`).join('');
 };
 
 // ---- MODAL SUCCÈS ----
-function ouvrirModalSuccess(fiche, source){
-  window._modalFiche=fiche; window._modalSource=source;
+function ouvrirModalSuccess(fiche,source){
+  window._modalFiche=fiche;window._modalSource=source;
   document.getElementById('modal-num-fiche').textContent=fiche.numero||'—';
   document.getElementById('modal-sous-titre').textContent=source==='entrepot'?'Fiche entrepôt envoyée au commercial':'Fiche enregistrée et synchronisée';
   document.getElementById('recap-message-zone').style.display='none';
   document.getElementById('modal-success').classList.add('open');
 }
-function fermerModalSuccess(){ document.getElementById('modal-success').classList.remove('open'); }
+function fermerModalSuccess(){document.getElementById('modal-success').classList.remove('open');}
 
-function rouvrirPartage(fid, source){
+function rouvrirPartage(fid,type){
   let fiche;
-  if(source==='entrepot') fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);
+  if(type==='entrepot')fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);
   else fiche=window.retours.find(r=>r.firebaseId===fid);
-  if(fiche) ouvrirModalSuccess(fiche,source);
+  if(fiche)ouvrirModalSuccess(fiche,type==='entrepot'?'entrepot':'commercial');
 }
 
 function genererMessage(type){
-  const fiche=window._modalFiche; if(!fiche) return;
+  const fiche=window._modalFiche;if(!fiche)return;
   const source=window._modalSource;
-  const url=SITE_URL;
+  const products=(fiche.products||[]);
+  const lignes=products.map(p=>`  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''}${p.motif?' → '+p.motif:''}`).join('\n');
   let msg='';
-
   if(type==='attendu'){
-    // Retour déclaré par le commercial — retour attendu
     if(source==='commercial'){
-      const lignes=fiche.products.map(p=>`  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''} → ${p.motif||'—'}`).join('\n');
-      msg=`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n`+
-        `🏪 Client : ${fiche.client}\n`+
-        `📋 BL : ${fiche.bl}\n`+
-        `🚛 Transporteur : ${fiche.transporteur||'—'}\n`+
-        `📅 Date livraison : ${fiche.dateLiv||fiche.date}\n`+
-        `👤 Commercial : ${fiche.commercial||'—'}\n\n`+
-        `*Produits retournés :*\n${lignes}\n\n`+
-        (fiche.comment?`💬 ${fiche.comment}\n\n`:'')+
-        `🔗 Voir la fiche : ${url}`;
-    } else {
-      msg=`📦 *ARRIVAGE ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n`+
-        `📦 Contenu : ${fiche.description}${fiche.qte?' × '+fiche.qte:''}\n`+
-        `📅 Reçu le : ${fiche.date}\n`+
-        `👤 Agent : ${fiche.agent}\n`+
-        `📋 État : ${fiche.etat}\n`+
-        (fiche.lot?`🏷️ Lot : ${fiche.lot}\n`:'')+
-        (fiche.comment?`💬 ${fiche.comment}\n`:'')+
-        `\n🔗 Voir la fiche : ${url}`;
+      msg=`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n🏪 Client : ${fiche.client}\n📋 BL : ${fiche.bl}\n🚛 Transporteur : ${fiche.transporteur||'—'}\n📅 Date : ${fiche.dateLiv||fiche.date}\n👤 Commercial : ${fiche.commercial||'—'}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+    }else{
+      msg=`📦 *ARRIVAGE ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n📅 Reçu le : ${fiche.date}\n👤 Agent : ${fiche.agent}\n\n*Articles :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
     }
-  } else {
-    // Arrivage inattendu
+  }else{
     if(source==='entrepot'){
-      msg=`⚠️ *ARRIVAGE INATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n`+
-        `Un colis a été reçu SANS déclaration préalable du commercial.\n\n`+
-        `📦 Contenu : ${fiche.description}${fiche.qte?' × '+fiche.qte:''}\n`+
-        `📅 Reçu le : ${fiche.date}\n`+
-        `👤 Agent entrepôt : ${fiche.agent}\n`+
-        `📋 État : ${fiche.etat}\n`+
-        (fiche.lot?`🏷️ Lot : ${fiche.lot}\n`:'')+
-        (fiche.comment?`💬 ${fiche.comment}\n`:'')+
-        `\n⚡ Action requise : rattacher à une commande\n`+
-        `🔗 Voir et rattacher : ${url}`;
-    } else {
-      const lignes=fiche.products.map(p=>`  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''}`).join('\n');
-      msg=`⚠️ *RETOUR INATTENDU — ${fiche.numero}*\n\n`+
-        `🏪 Client : ${fiche.client}\n`+
-        `📋 BL : ${fiche.bl}\n`+
-        `📅 Date : ${fiche.date}\n\n`+
-        `*Produits :*\n${lignes}\n\n`+
-        (fiche.comment?`💬 ${fiche.comment}\n\n`:'')+
-        `🔗 Voir la fiche : ${url}`;
+      msg=`⚠️ *ARRIVAGE INATTENDU EN ENTREPÔT — ${fiche.numero}*\n\nUn colis a été reçu SANS déclaration préalable.\n\n📅 Reçu le : ${fiche.date}\n👤 Agent : ${fiche.agent}\n\n*Articles :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}⚡ Action requise : rattacher à une commande\n🔗 ${SITE_URL}`;
+    }else{
+      msg=`⚠️ *RETOUR INATTENDU — ${fiche.numero}*\n\n🏪 Client : ${fiche.client}\n📋 BL : ${fiche.bl}\n📅 Date : ${fiche.date}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
     }
   }
   document.getElementById('recap-message-text').textContent=msg;
   document.getElementById('recap-message-zone').style.display='block';
   window._messageRecap=msg;
 }
-
 function copierMessage(){
-  const msg=window._messageRecap; if(!msg) return;
+  const msg=window._messageRecap;if(!msg)return;
   navigator.clipboard.writeText(msg).then(()=>showToast('Message copié !')).catch(()=>{
     const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Message copié !');
   });
 }
-function partagerWhatsapp(){
-  const msg=window._messageRecap; if(!msg) return;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-}
+function partagerWhatsapp(){window.open('https://wa.me/?text='+encodeURIComponent(window._messageRecap||''),'_blank');}
 function partagerEmail(){
-  const msg=window._messageRecap; if(!msg) return;
-  const fiche=window._modalFiche;
-  const sujet=encodeURIComponent('Fiche retour '+( fiche?.numero||''));
-  window.open('mailto:?subject='+sujet+'&body='+encodeURIComponent(msg),'_blank');
+  const f=window._modalFiche;
+  window.open('mailto:?subject='+encodeURIComponent('Fiche retour '+(f?.numero||''))+'&body='+encodeURIComponent(window._messageRecap||''),'_blank');
 }
 
 // ---- RATTACHEMENT ----
 function ouvrirRattachement(fid){
-  const fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid); if(!fiche) return;
+  const fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);if(!fiche)return;
   window.rattachId=fid;
-  document.getElementById('modal-entrepot-recap').innerHTML=`
-    <strong>Fiche entrepôt ${fiche.numero||''} :</strong><br>
-    📦 ${fiche.description}${fiche.qte?' × '+fiche.qte:''}<br>
-    🗓️ Reçu le ${fiche.date} par ${fiche.agent}<br>
-    📋 État : ${fiche.etat}${fiche.comment?'<br>💬 '+fiche.comment:''}`;
+  const products=(fiche.products||[]);
+  const recap=products.map(p=>`📦 ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.motif?' — '+p.motif:''}`).join('<br>');
+  document.getElementById('modal-entrepot-recap').innerHTML=`<strong>Fiche ${fiche.numero||''} :</strong><br>${recap}${fiche.comment?'<br>💬 '+fiche.comment:''}`;
   ['r-client','r-bl','r-transporteur','r-commercial','r-comment'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('r-date-livraison').value='';
   document.getElementById('modal-rattach').classList.add('open');
 }
-function closeRattachModal(){ document.getElementById('modal-rattach').classList.remove('open'); window.rattachId=null; }
+function closeRattachModal(){document.getElementById('modal-rattach').classList.remove('open');window.rattachId=null;}
 
 async function confirmerRattachement(){
   const client=document.getElementById('r-client').value.trim();
   const bl=document.getElementById('r-bl').value.trim();
   if(!client||!bl){showToast('Client et N° BL requis.');return;}
-  const ficheEntrepot=window.retoursEntrepot.find(r=>r.firebaseId===window.rattachId); if(!ficheEntrepot) return;
-  const numero = await getNextNumero();
-  const fiche={
-    numero,
-    date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
-    client,bl,
-    transporteur:document.getElementById('r-transporteur').value.trim(),
+  const ficheEntrepot=window.retoursEntrepot.find(r=>r.firebaseId===window.rattachId);if(!ficheEntrepot)return;
+  const numero=await getNextNumero();
+  const fiche={numero,date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
+    client,bl,transporteur:document.getElementById('r-transporteur').value.trim(),
     dateLiv:document.getElementById('r-date-livraison').value,
     commercial:document.getElementById('r-commercial').value.trim(),
-    comment:document.getElementById('r-comment').value.trim()||ficheEntrepot.comment,
-    products:[{nom:ficheEntrepot.description,lot:ficheEntrepot.lot||'',qteAttendue:'',qteRecue:ficheEntrepot.qte||'',motif:ficheEntrepot.etat}],
+    comment:document.getElementById('r-comment').value.trim()||ficheEntrepot.comment||'',
+    products:ficheEntrepot.products||[],
     hasManque:false,statut:'nouveau',decision:null,commentPrep:'',
-    source:'entrepot_rattache',entrepotId:window.rattachId
-  };
+    source:'entrepot_rattache',entrepotId:window.rattachId};
   try{
     await window._push(window._ref(window._db,'retours'),fiche);
     await window._update(window._ref(window._db,'retours_entrepot/'+window.rattachId),{rattache:true,clientRattache:client,blRattache:bl});
     closeRattachModal();
-    window._derniereFiche=fiche; window._modalFiche=fiche; window._modalSource='commercial';
+    window._modalFiche=fiche;window._modalSource='commercial';
     ouvrirModalSuccess(fiche,'commercial');
   }catch(e){showToast('Erreur : '+e.message);}
 }
@@ -672,7 +811,6 @@ function filterRetours(filter,btn){
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');renderRetours(filter);
 }
-
 window.renderRetours=function(filter){
   const container=document.getElementById('retours-list');
   const list=filter==='all'?window.retours:window.retours.filter(r=>r.statut===filter);
@@ -689,8 +827,7 @@ window.renderRetours=function(filter){
           <span class="num-fiche">${r.numero||'—'}</span>
           <span style="font-weight:700;font-size:15px">${r.client}</span>
           <span style="color:var(--gray);font-size:12px">BL ${r.bl}</span>
-          ${srcTag}
-          ${r.hasManque?`<span class="badge badge-manque"><i class="ti ti-alert-triangle"></i> Manque</span>`:''}
+          ${srcTag}${r.hasManque?`<span class="badge badge-manque"><i class="ti ti-alert-triangle"></i> Manque</span>`:''}
         </div>
         <span class="badge ${sBadge}">${sLabel}</span>
       </div>
@@ -701,33 +838,27 @@ window.renderRetours=function(filter){
         ${r.commercial?`<span><i class="ti ti-user"></i> ${r.commercial}</span>`:''}
       </div>
       <div class="retour-products">
-        ${r.products.map(p=>{
-          const m=p.qteAttendue&&p.qteRecue&&parseInt(p.qteRecue)<parseInt(p.qteAttendue);
-          const d=m?parseInt(p.qteRecue)-parseInt(p.qteAttendue):0;
-          return `<span class="product-tag ${m?'manque':''}">${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${m?' ('+d+')':''}</span>`;
-        }).join('')}
+        ${r.products.map(p=>`<span class="product-tag">${p.nom}${p.qteRecue?' × '+p.qteRecue:''}</span>`).join('')}
       </div>
       <div class="detail-overlay ${isOpen?'open':''}" onclick="event.stopPropagation()">
         <div style="margin-top:1rem;border-top:1.5px solid var(--gray-light);padding-top:1rem">
-          <div class="section-header"><i class="ti ti-list-details"></i> Détail des produits</div>
-          <table class="products-table" style="margin:.6rem 0 1rem;table-layout:fixed">
+          <div class="section-header"><i class="ti ti-list-details"></i> Détail</div>
+          <table class="products-table" style="margin:.5rem 0 1rem;table-layout:fixed">
             <thead><tr>
               <th style="width:26%">Produit</th><th style="width:14%">Lot</th>
-              <th style="width:11%">Attendu</th><th style="width:11%">Reçu</th>
+              <th style="width:11%">Att.</th><th style="width:11%">Reçu</th>
               <th style="width:13%">Écart</th><th style="width:25%">Motif</th>
             </tr></thead>
             <tbody>${r.products.map(p=>{
               const att=parseInt(p.qteAttendue)||0,rec=parseInt(p.qteRecue)||0;
               const diff=(p.qteAttendue&&p.qteRecue)?rec-att:null;
               const dh=diff===null?'—':diff<0?`<span class="tag-motif">${diff}</span>`:`<span style="color:#15803d;font-weight:600">${diff===0?'OK':'+'+diff}</span>`;
-              return `<tr>
-                <td style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nom}</td>
+              return `<tr><td style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nom}</td>
                 <td style="color:var(--gray);font-size:12px">${p.lot||'—'}</td>
                 <td style="text-align:center">${p.qteAttendue||'—'}</td>
                 <td style="text-align:center">${p.qteRecue||'—'}</td>
                 <td style="text-align:center">${dh}</td>
-                <td><span class="tag-motif">${p.motif||'—'}</span></td>
-              </tr>`;
+                <td><span class="tag-motif">${p.motif||'—'}</span></td></tr>`;
             }).join('')}</tbody>
           </table>
           ${r.comment?`<div style="font-size:13px;color:var(--gray);margin-bottom:.75rem;padding:10px 14px;background:var(--cream);border-radius:8px"><i class="ti ti-message"></i> ${r.comment}</div>`:''}
@@ -735,26 +866,21 @@ window.renderRetours=function(filter){
           <div class="controle-grid">
             <div class="controle-col">
               <div class="controle-col-title conforme">✓ Marchandise conforme</div>
-              <div class="check-option">
-                <input type="checkbox" id="stock-${fid}" ${r.decision==='stock'?'checked':''} onchange="setDecision('${fid}','stock',this)">
-                <label for="stock-${fid}"><i class="ti ti-arrow-back-up"></i> Remise en stock</label>
-              </div>
+              <div class="check-option"><input type="checkbox" id="stock-${fid}" ${r.decision==='stock'?'checked':''} onchange="setDecision('${fid}','stock',this)"><label for="stock-${fid}"><i class="ti ti-arrow-back-up"></i> Remise en stock</label></div>
             </div>
             <div class="controle-col">
               <div class="controle-col-title non-conforme">✗ Marchandise non conforme</div>
-              <div class="check-option">
-                <input type="checkbox" id="destroy-${fid}" ${r.decision==='destruction'?'checked':''} onchange="setDecision('${fid}','destruction',this)">
-                <label for="destroy-${fid}"><i class="ti ti-trash"></i> Destruction</label>
-              </div>
+              <div class="check-option"><input type="checkbox" id="destroy-${fid}" ${r.decision==='destruction'?'checked':''} onchange="setDecision('${fid}','destruction',this)"><label for="destroy-${fid}"><i class="ti ti-trash"></i> Destruction</label></div>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;margin-top:1rem">
             <label style="font-size:11px;color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Commentaire préparateur</label>
-            <textarea style="padding:11px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:65px;background:var(--white);color:var(--dark);outline:none" placeholder="Observations..." onchange="setComment('${fid}',this.value)">${r.commentPrep||''}</textarea>
+            <textarea style="padding:11px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:60px;background:var(--white);color:var(--dark);outline:none" placeholder="Observations..." onchange="setComment('${fid}',this.value)">${r.commentPrep||''}</textarea>
           </div>
           <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
             ${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'✓ Remise en stock':'✗ Destruction'}</span>`:''}
-            <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager la fiche</button>
+            <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="event.stopPropagation();genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${fid}'))"><i class="ti ti-file-download"></i> PDF</button>
+            <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager</button>
           </div>
         </div>
       </div>
@@ -763,7 +889,6 @@ window.renderRetours=function(filter){
 };
 
 function toggleDetail(id){window.openId=window.openId===id?null:id;renderRetours(window.currentFilter);}
-
 async function setDecision(fid,decision,checkbox){
   const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
   const newD=checkbox.checked?decision:null,newS=checkbox.checked?'traite':'en_attente';
@@ -774,13 +899,6 @@ async function setDecision(fid,decision,checkbox){
 async function setComment(fid,val){
   const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
   try{await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{commentPrep:val});}catch(e){}
-}
-
-function rouvrirPartage(fid, type){
-  let fiche;
-  if(type==='entrepot') fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);
-  else fiche=window.retours.find(r=>r.firebaseId===fid);
-  if(fiche) ouvrirModalSuccess(fiche, type==='entrepot'?'entrepot':'commercial');
 }
 
 // ---- SUIVI ----
@@ -797,13 +915,14 @@ window.renderSuivi=function(){
     ?`<div class="empty-state"><i class="ti ti-clipboard-x"></i><br>Aucune fiche enregistrée</div>`
     :`<table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed">
       <thead><tr style="border-bottom:1.5px solid var(--gray-light)">
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:100px;text-align:left">N° Fiche</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:95px;text-align:left">N° Fiche</th>
         <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:120px;text-align:left">Client</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:95px;text-align:left">BL</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Date</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Source</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:90px;text-align:left">BL</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:75px;text-align:left">Date</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:70px;text-align:left">Source</th>
         <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Statut</th>
         <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Décision</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:55px;text-align:left">PDF</th>
       </tr></thead>
       <tbody>${window.retours.map(r=>`<tr style="border-bottom:1px solid #f5f3ee">
         <td style="padding:8px 10px"><span class="num-fiche">${r.numero||'—'}</span></td>
@@ -813,13 +932,16 @@ window.renderSuivi=function(){
         <td style="padding:8px 10px">${r.source==='entrepot_rattache'?`<span style="font-size:11px;color:#7c3aed;font-weight:600">Entrepôt</span>`:`<span style="font-size:11px;color:var(--gray)">Commercial</span>`}</td>
         <td style="padding:8px 10px"><span class="badge badge-${r.statut==='nouveau'?'new':r.statut==='en_attente'?'pending':'done'}">${r.statut==='nouveau'?'Nouveau':r.statut==='en_attente'?'En attente':'Traité'}</span></td>
         <td style="padding:8px 10px">${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'Stock':'Destruction'}</span>`:'—'}</td>
+        <td style="padding:8px 10px"><button class="btn-pdf" style="padding:5px 10px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button></td>
       </tr>`).join('')}</tbody>
     </table>`;
 };
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
 document.getElementById('date-display').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 document.getElementById('products-body').appendChild(makeRow());
+document.getElementById('entrepot-products-body').appendChild(makeEntrepotRow());
 document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
 </script>
 </body>
