@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -230,6 +231,19 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
       <div class="form-row">
         <div class="form-group"><label>Reçu par</label><input type="text" id="e-agent" placeholder="Votre prénom"></div>
         <div class="form-group"><label>Date de réception</label><input type="date" id="e-date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Client (si connu) <span style="font-weight:400;color:#aaa">— optionnel</span></label>
+          <div class="autocomplete-wrap">
+            <input type="text" id="e-client" placeholder="ex : Carrefour Billy" oninput="acEntrepotClient(this)" onfocus="acEntrepotClient(this)" autocomplete="off">
+            <div class="autocomplete-list" id="ac-e-client" style="display:none"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Transporteur (si connu) <span style="font-weight:400;color:#aaa">— optionnel</span></label>
+          <input type="text" id="e-transporteur" placeholder="ex : Mesguen">
+        </div>
       </div>
       <div class="section-header"><i class="ti ti-box"></i> Articles reçus</div>
       <table class="products-table" id="ptable-entrepot">
@@ -532,8 +546,27 @@ function selectOrigine(el,o){
   el.closest('td').querySelector('.ac-inline').style.display='none';
 }
 
+function acEntrepotClient(input){
+  const q=input.value.trim().toLowerCase();
+  const list=document.getElementById('ac-e-client');
+  if(!q){list.style.display='none';return;}
+  const matches=window._histo.clients.filter(c=>c.client.toLowerCase().includes(q)).slice(0,6);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(c=>`<div class="autocomplete-item" onclick="selectEntrepotClient(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+    <div class="ac-main">${c.client}</div>
+    ${c.transporteur?`<div class="ac-sub">🚛 ${c.transporteur}</div>`:''}
+  </div>`).join('');
+  list.style.display='block';
+}
+function selectEntrepotClient(c){
+  document.getElementById('e-client').value=c.client;
+  if(c.transporteur&&!document.getElementById('e-transporteur').value)
+    document.getElementById('e-transporteur').value=c.transporteur;
+  document.getElementById('ac-e-client').style.display='none';
+}
+
 document.addEventListener('click',e=>{
-  ['ac-client','ac-bl','ac-r-client'].forEach(id=>{
+  ['ac-client','ac-bl','ac-r-client','ac-e-client'].forEach(id=>{
     const el=document.getElementById(id);
     if(el&&!el.contains(e.target)) el.style.display='none';
   });
@@ -703,7 +736,7 @@ function getEntrepotProducts(){
   },[]);
 }
 function resetEntrepot(){
-  ['e-agent','e-comment'].forEach(id=>document.getElementById(id).value='');
+  ['e-agent','e-client','e-transporteur','e-comment'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
   const tb=document.getElementById('entrepot-products-body');tb.innerHTML='';tb.appendChild(makeEntrepotRow());
 }
@@ -715,9 +748,14 @@ async function submitEntrepot(){
   const btn=document.getElementById('btn-entrepot-submit');
   btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Envoi...';
   const numero=await getNextNumero();
+  const clientConnu=document.getElementById('e-client').value.trim();
+  const transporteurConnu=document.getElementById('e-transporteur').value.trim();
   const fiche={numero,date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
     agent,products,comment:document.getElementById('e-comment').value.trim(),
-    dateLiv:document.getElementById('e-date').value,rattache:false,source:'entrepot'};
+    dateLiv:document.getElementById('e-date').value,
+    clientConnu:clientConnu||null,
+    transporteurConnu:transporteurConnu||null,
+    rattache:false,source:'entrepot'};
   try{
     await window._push(window._ref(window._db,'retours_entrepot'),fiche);
     window._modalFiche={...fiche,client:'(non rattaché)',bl:'—'};window._modalSource='entrepot';
@@ -748,6 +786,8 @@ window.renderEntrepotList=function(){
         <span><i class="ti ti-calendar"></i> ${r.date}</span>
         <span><i class="ti ti-user"></i> ${r.agent}</span>
         <span><i class="ti ti-box"></i> ${prods.length} article${prods.length>1?'s':''}</span>
+        ${r.clientConnu?`<span style="color:#1d4ed8;font-weight:600"><i class="ti ti-building-store"></i> ${r.clientConnu}</span>`:''}
+        ${r.transporteurConnu?`<span><i class="ti ti-truck"></i> ${r.transporteurConnu}</span>`:''}
       </div>
       <div class="retour-products">${prodTags}</div>
       ${r.rattache?`<div style="margin-top:8px;font-size:12px;color:#15803d"><i class="ti ti-link"></i> Rattaché à : <strong>${r.clientRattache||''}</strong> — BL ${r.blRattache||''}</div>`:''}
@@ -914,20 +954,66 @@ function genererMessage(type){
   const fiche=window._modalFiche;if(!fiche)return;
   const source=window._modalSource;
   const products=fiche.products||[];
+
+  // Lignes articles standard
   const lignes=products.map(p=>{
     const dec=p.decisionArticle;
     const decStr=dec==='accepte'?' ✓':dec==='destruction'?' ✗':'';
-    return `  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.origine?' · '+p.origine:''}${p.qteRecue?' — '+p.qteRecue+' u.':''}${p.motif?' → '+p.motif:''}${decStr}`;
+    return `  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.origine?' · '+p.origine:''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''}${p.motif?' → '+p.motif:''}${decStr}`;
   }).join('\n');
+
+  // Lignes contrôle par article (pour préparateur)
+  const lignesControle=products.map(p=>{
+    const ctrl=p.controle||{};
+    const parts=[];
+    if(ctrl.qStock) parts.push(ctrl.qStock+' en stock ✓');
+    if(ctrl.qDestroy) parts.push(ctrl.qDestroy+' à détruire ✗');
+    if(ctrl.qManque) parts.push(ctrl.qManque+' manquants ⚠');
+    return `  • ${p.nom}${p.qteRecue?' (reçu: '+p.qteRecue+')':''}${parts.length?' → '+parts.join(', '):''}`;
+  }).join('\n');
+
   let msg='';
+
   if(type==='attendu'){
     msg=source==='commercial'
-      ?`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n🏪 ${fiche.client}\n📋 BL : ${fiche.bl}\n🚛 ${fiche.transporteur||'—'}\n📅 ${fiche.dateLiv||fiche.date}\n👤 ${fiche.commercial||'—'}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`
-      :`📦 *ARRIVAGE ATTENDU — ${fiche.numero}*\n\n📅 ${fiche.date} · 👤 ${fiche.agent}\n\n*Articles :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+      ?`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n🏪 Client : ${fiche.client}\n📋 BL : ${fiche.bl}\n🚛 Transporteur : ${fiche.transporteur||'—'}\n📅 Date : ${fiche.dateLiv||fiche.date}\n👤 Commercial : ${fiche.commercial||'—'}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`
+      :`📦 *ARRIVAGE ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n📅 ${fiche.date} · 👤 ${fiche.agent}\n${fiche.clientConnu?'🏪 Client : '+fiche.clientConnu+'\n':''}${fiche.transporteurConnu?'🚛 Transporteur : '+fiche.transporteurConnu+'\n':''}\n*Articles reçus :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+
   }else{
-    msg=source==='entrepot'
-      ?`⚠️ *ARRIVAGE INATTENDU — ${fiche.numero}*\n\nColis reçu SANS déclaration préalable.\n📅 ${fiche.date} · 👤 ${fiche.agent}\n\n*Articles :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}⚡ À rattacher à une commande\n🔗 ${SITE_URL}`
-      :`⚠️ *RETOUR INATTENDU — ${fiche.numero}*\n\n🏪 ${fiche.client} · BL ${fiche.bl}\n📅 ${fiche.date}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+    if(source==='entrepot'){
+      // Message inattendu entrepôt — détaillé avec stock/destruction
+      const clientInfo=fiche.clientConnu?`🏪 *${fiche.clientConnu}*`:'🏪 Client inconnu — à identifier';
+      const transportInfo=fiche.transporteurConnu?`🚛 Transporteur : ${fiche.transporteurConnu}`:'🚛 Transporteur inconnu';
+
+      // Séparation articles acceptés vs détruits
+      const acceptes=products.filter(p=>p.decisionArticle==='accepte');
+      const detruits=products.filter(p=>p.decisionArticle==='destruction');
+      const sansDecision=products.filter(p=>!p.decisionArticle);
+
+      let detailLines='';
+      if(acceptes.length){
+        detailLines+=`\n✅ *À remettre en stock :*\n`;
+        detailLines+=acceptes.map(p=>`  • ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.origine?' ('+p.origine+')':''}`).join('\n');
+      }
+      if(detruits.length){
+        detailLines+=`\n\n🗑️ *À détruire :*\n`;
+        detailLines+=detruits.map(p=>`  • ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.motif?' — '+p.motif:''}`).join('\n');
+      }
+      if(sansDecision.length){
+        detailLines+=`\n\n❓ *Décision en attente :*\n`;
+        detailLines+=sansDecision.map(p=>`  • ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}`).join('\n');
+      }
+
+      msg=`⚠️ *ATTENTION — ARRIVAGE NON DÉCLARÉ — ${fiche.numero}*\n\n`+
+          `Nous avons reçu un retour sans déclaration préalable.\n\n`+
+          `${clientInfo}\n${transportInfo}\n📅 Reçu le : ${fiche.date}\n👤 Agent : ${fiche.agent}\n`+
+          detailLines+
+          `\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}`+
+          `⚡ Action requise : rattacher à une commande\n🔗 ${SITE_URL}`;
+
+    }else{
+      msg=`⚠️ *RETOUR INATTENDU — ${fiche.numero}*\n\n🏪 ${fiche.client} · BL ${fiche.bl}\n📅 ${fiche.date}\n\n*Produits :*\n${lignesControle||lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+    }
   }
   document.getElementById('recap-message-text').textContent=msg;
   document.getElementById('recap-message-zone').style.display='block';
@@ -1225,6 +1311,8 @@ window.renderSuivi=function(){
           <span><i class="ti ti-calendar"></i> ${r.date}</span>
           <span><i class="ti ti-user"></i> ${r.agent||'—'}</span>
           <span><i class="ti ti-box"></i> ${prods.length} article${prods.length>1?'s':''}</span>
+          ${r.clientConnu?`<span style="color:#1d4ed8;font-weight:600"><i class="ti ti-building-store"></i> ${r.clientConnu}</span>`:''}
+          ${r.transporteurConnu?`<span><i class="ti ti-truck"></i> ${r.transporteurConnu}</span>`:''}
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
           ${prods.map(p=>`<span class="product-tag">${p.nom}${p.qteRecue?' × '+p.qteRecue:''}</span>`).join('')}
