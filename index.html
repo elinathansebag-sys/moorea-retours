@@ -1079,7 +1079,7 @@ window.renderRetours=function(filter){
               if(totStock>0) parts.push('<span style="color:#15803d;font-weight:600">✓ '+totStock+' en stock</span>');
               if(totDestroy>0) parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totDestroy+' détruits</span>');
               if(totManque>0) parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totManque+' manquants</span>');
-              return parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée pour l'instant.';
+              return parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée pour l\'instant.';
             })()}
           </div>
           <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap">
@@ -1115,7 +1115,7 @@ async function setControleArticle(fid, pi, field, val){
       if(totStock>0) parts.push('<span style="color:#15803d;font-weight:600">✓ '+totStock+' en stock</span>');
       if(totDestroy>0) parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totDestroy+' détruits</span>');
       if(totManque>0) parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totManque+' manquants</span>');
-      recap.innerHTML=parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée pour l'instant.';
+      recap.innerHTML=parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée.';
     }
   }
 }
