@@ -720,8 +720,8 @@ function makeEntrepotRow(){
       <option>Pourriture partielle</option><option>Autre</option>
     </select></td>
     <td><div class="dec-btns">
-      <button type="button" class="dec-btn accept" onclick="toggleDecArticle(this,'accept')">✓ Accepté</button>
-      <button type="button" class="dec-btn destroy" onclick="toggleDecArticle(this,'destroy')">✗ Détruit</button>
+      <button type="button" class="dec-btn accept" onclick="toggleDecArticle(this,'accept')">✓ En stock</button>
+      <button type="button" class="dec-btn destroy" onclick="toggleDecArticle(this,'destroy')">✗ Destruction</button>
     </div></td>
     <td><button class="btn-del" onclick="delRow(this)"><i class="ti ti-trash"></i></button></td>`;
   return tr;
@@ -782,7 +782,7 @@ window.renderEntrepotList=function(){
     const prods=r.products||[];
     const isRattache=r.rattache;
 
-    // Compter acceptés / détruits
+    // Compter remis en stocks / détruits
     const nbAccept=prods.filter(p=>p.decisionArticle==='accepte').length;
     const nbDestroy=prods.filter(p=>p.decisionArticle==='destruction').length;
     const nbSansDecision=prods.filter(p=>!p.decisionArticle).length;
@@ -807,8 +807,8 @@ window.renderEntrepotList=function(){
           <span><i class="ti ti-calendar"></i> ${r.date}</span>
           <span><i class="ti ti-user"></i> ${r.agent}</span>
           <span><i class="ti ti-box"></i> ${prods.length} article${prods.length>1?'s':''}</span>
-          ${nbAccept?`<span style="color:#15803d;font-weight:600"><i class="ti ti-check"></i> ${nbAccept} accepté${nbAccept>1?'s':''}</span>`:''}
-          ${nbDestroy?`<span style="color:#dc2626;font-weight:600"><i class="ti ti-trash"></i> ${nbDestroy} à détruire</span>`:''}
+          ${nbAccept?`<span style="color:#15803d;font-weight:600"><i class="ti ti-check"></i> ${nbAccept} remis en stock</span>`:''}
+          ${nbDestroy?`<span style="color:#dc2626;font-weight:600"><i class="ti ti-trash"></i> ${nbDestroy} détruits</span>`:''}
           ${nbSansDecision?`<span style="color:#b45309;font-weight:600"><i class="ti ti-question-mark"></i> ${nbSansDecision} sans décision</span>`:''}
         </div>
 
@@ -828,9 +828,9 @@ window.renderEntrepotList=function(){
               const dec=p.decisionArticle;
               const rowBg=i%2===0?'':'background:#fafaf8';
               const decBadge=dec==='accepte'
-                ?'<span style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap">✓ Accepté</span>'
+                ?'<span style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap">✓ En stock</span>'
                 :dec==='destruction'
-                ?'<span style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap">✗ Détruit</span>'
+                ?'<span style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap">✗ Destruction</span>'
                 :'<span style="color:#bbb;font-size:11px">—</span>';
               return `<tr style="${rowBg}">
                 <td style="padding:6px 8px;font-weight:600">${p.nom}${p.lot?`<span style="font-weight:400;color:var(--gray);font-size:11px;margin-left:6px">Lot ${p.lot}</span>`:''}</td>
@@ -932,7 +932,7 @@ function genererPDF(fiche){
       const diff=(p.qteAttendue&&p.qteRecue)?rec-att:null;
       const diffStr=diff===null?'—':diff<0?String(diff):diff===0?'OK':'+'+diff;
       const dec=p.decisionArticle;
-      const decStr=dec==='accepte'?'✓ Accepté':dec==='destruction'?'✗ Détruit':'—';
+      const decStr=dec==='accepte'?'✓ En stock':dec==='destruction'?'✗ Destruction':'—';
       cx=ml;
       doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(20,20,20);
       doc.text(doc.splitTextToSize(p.nom||'—',44)[0],cx+1.5,y);cx+=cols[0][1];
@@ -1045,7 +1045,7 @@ function genererMessage(type){
       const clientInfo=fiche.clientConnu?`🏪 *${fiche.clientConnu}*`:'🏪 Client inconnu — à identifier';
       const transportInfo=fiche.transporteurConnu?`🚛 Transporteur : ${fiche.transporteurConnu}`:'🚛 Transporteur inconnu';
 
-      // Séparation articles acceptés vs détruits
+      // Séparation articles remis en stocks vs détruits
       const acceptes=products.filter(p=>p.decisionArticle==='accepte');
       const detruits=products.filter(p=>p.decisionArticle==='destruction');
       const sansDecision=products.filter(p=>!p.decisionArticle);
@@ -1097,7 +1097,7 @@ function ouvrirRattachement(fid){
   window.rattachId=fid;
   const prods=(fiche.products||[]).map(p=>{
     const dec=p.decisionArticle;
-    return `📦 ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.origine?' · '+p.origine:''}${p.motif?' — '+p.motif:''}${dec?' ('+( dec==='accepte'?'✓ Accepté':'✗ Détruit')+')':''}`;
+    return `📦 ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.origine?' · '+p.origine:''}${p.motif?' — '+p.motif:''}${dec?' ('+( dec==='accepte'?'✓ En stock':'✗ Destruction')+')':''}`;
   }).join('<br>');
   document.getElementById('modal-entrepot-recap').innerHTML=`<strong>Fiche ${fiche.numero||''} :</strong><br>${prods}${fiche.comment?'<br>💬 '+fiche.comment:''}`;
   ['r-client','r-bl','r-transporteur','r-commercial','r-comment'].forEach(id=>document.getElementById(id).value='');
@@ -1179,7 +1179,7 @@ window.renderRetours=function(filter){
               const diff=(p.qteAttendue&&p.qteRecue)?rec-att:null;
               const dh=diff===null?'—':diff<0?`<span class="tag-motif">${diff}</span>`:`<span style="color:#15803d;font-weight:600">${diff===0?'OK':'+'+diff}</span>`;
               const dec=p.decisionArticle;
-              const decHtml=dec==='accepte'?`<span style="color:#15803d;font-weight:600;font-size:11px">✓ Accepté</span>`:dec==='destruction'?`<span style="color:#dc2626;font-weight:600;font-size:11px">✗ Détruit</span>`:'—';
+              const decHtml=dec==='accepte'?`<span style="color:#15803d;font-weight:600;font-size:11px">✓ En stock</span>`:dec==='destruction'?`<span style="color:#dc2626;font-weight:600;font-size:11px">✗ Destruction</span>`:'—';
               return `<tr>
                 <td style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nom}</td>
                 <td style="color:var(--gray);font-size:12px">${p.lot||'—'}</td>
