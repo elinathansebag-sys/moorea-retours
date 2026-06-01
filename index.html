@@ -137,6 +137,11 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .num-fiche-big{font-size:30px;font-weight:700;color:var(--gold);letter-spacing:1px;text-align:center;margin:.5rem 0}
 .num-fiche-label{font-size:11px;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.5px}
 .info-box{background:#fffbf0;border:1.5px solid rgba(200,168,75,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:#92600a;margin-bottom:1rem;display:flex;align-items:flex-start;gap:8px;line-height:1.6}
+.decl-card{background:var(--white);border:1.5px solid var(--gray-light);border-radius:14px;padding:1rem 1.25rem;margin-bottom:8px;transition:border-color .15s}
+.decl-card:hover{border-color:rgba(200,168,75,.4)}
+.decl-card.decl-warn{border-color:#fde68a;background:#fffdf5}
+.decl-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.decl-meta{display:flex;gap:12px;font-size:12px;color:var(--gray);flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -157,7 +162,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <button class="nav-btn active" id="btn-commercial" onclick="showPage('commercial')"><i class="ti ti-clipboard-list"></i> Saisie commerciale</button>
     <button class="nav-btn" id="btn-entrepot" onclick="showPage('entrepot')"><i class="ti ti-building-warehouse"></i> Entrepôt <span class="notif" id="notif-entrepot" style="display:none">0</span></button>
     <button class="nav-btn" id="btn-preparateur" onclick="showPage('preparateur')"><i class="ti ti-package"></i> Préparateur</button>
-    <button class="nav-btn" id="btn-suivi" onclick="showPage('suivi')"><i class="ti ti-chart-bar"></i> Suivi</button>
+    <button class="nav-btn" id="btn-suivi" onclick="showPage('suivi')"><i class="ti ti-files"></i> Déclarations <span class="notif" id="notif-suivi" style="display:none">0</span></button>
   </div>
 </div>
 
@@ -265,13 +270,34 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <div id="retours-list"></div>
   </div>
 
-  <!-- PAGE SUIVI -->
+  <!-- PAGE SUIVI / DECLARATIONS -->
   <div class="page" id="page-suivi">
-    <div class="section-title">Tableau de suivi</div>
+    <div class="section-title">Déclarations</div>
     <div class="stat-grid" id="stats-grid"></div>
-    <div class="card">
-      <div class="section-header"><i class="ti ti-list"></i> Toutes les fiches</div>
-      <div id="all-retours-table"></div>
+
+    <!-- Sous-partie 1 : En attente -->
+    <div style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:3px;height:16px;background:#b45309;border-radius:2px"></div>
+          <span style="font-size:13px;font-weight:700;color:#b45309;letter-spacing:1px;text-transform:uppercase">En attente</span>
+          <span class="badge badge-pending" id="count-attente">0</span>
+        </div>
+        <div style="font-size:12px;color:var(--gray)">Retours entrepôt à rattacher + fiches commerciales non traitées</div>
+      </div>
+      <div id="decl-attente"></div>
+    </div>
+
+    <!-- Sous-partie 2 : Traitées -->
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:3px;height:16px;background:#15803d;border-radius:2px"></div>
+          <span style="font-size:13px;font-weight:700;color:#15803d;letter-spacing:1px;text-transform:uppercase">Traitées</span>
+          <span class="badge badge-done" id="count-traite">0</span>
+        </div>
+      </div>
+      <div id="decl-traite"></div>
     </div>
   </div>
 </div>
@@ -373,6 +399,7 @@ onValue(ref(db,'retours_entrepot'),snap=>{
   buildHistorique();
   const ap=document.querySelector('.page.active');
   if(ap?.id==='page-entrepot')window.renderEntrepotList();
+  if(ap?.id==='page-suivi')window.renderSuivi();
   updateSyncLabel();
 });
 onValue(ref(db,'compteur'),snap=>{window._compteur=snap.val()||0;});
@@ -1143,50 +1170,164 @@ async function setComment(fid,val){
 
 // ---- SUIVI ----
 window.renderSuivi=function(){
-  const t=window.retours.length,tr=window.retours.filter(r=>r.statut==='traite').length;
-  const ea=window.retours.filter(r=>r.statut!=='traite').length;
-  const nd=(window.retoursEntrepot||[]).filter(r=>!r.rattache).length;
+  const retours=window.retours||[];
+  const entrepots=window.retoursEntrepot||[];
+
+  // Stats
+  const total=retours.length;
+  const traites=retours.filter(r=>r.statut==='traite').length;
+  const nonTraites=retours.filter(r=>r.statut!=='traite').length;
+  const nonRattaches=entrepots.filter(r=>!r.rattache).length;
   document.getElementById('stats-grid').innerHTML=`
-    <div class="stat-card"><div class="num">${t}</div><div class="lbl">Fiches totales</div></div>
-    <div class="stat-card"><div class="num">${tr}</div><div class="lbl">Traitées</div></div>
-    <div class="stat-card"><div class="num">${ea}</div><div class="lbl">En attente</div></div>
-    <div class="stat-card warn"><div class="num">${nd}</div><div class="lbl">Non déclarés</div></div>`;
-  document.getElementById('all-retours-table').innerHTML=!window.retours.length
-    ?`<div class="empty-state"><i class="ti ti-clipboard-x"></i><br>Aucune fiche enregistrée</div>`
-    :`<table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed">
+    <div class="stat-card"><div class="num">${total}</div><div class="lbl">Fiches totales</div></div>
+    <div class="stat-card"><div class="num">${traites}</div><div class="lbl">Traitées</div></div>
+    <div class="stat-card"><div class="num">${nonTraites}</div><div class="lbl">En attente</div></div>
+    <div class="stat-card warn"><div class="num">${nonRattaches}</div><div class="lbl">À rattacher</div></div>`;
+
+  // Notif badge nav
+  const totalAttente=nonTraites+nonRattaches;
+  const notifBadge=document.getElementById('notif-suivi');
+  if(notifBadge){notifBadge.textContent=totalAttente;notifBadge.style.display=totalAttente>0?'inline-block':'none';}
+
+  // ---- EN ATTENTE ----
+  // = fiches entrepôt non rattachées + fiches commerciales non traitées
+  const enAttenteEl=document.getElementById('decl-attente');
+  const countAttenteEl=document.getElementById('count-attente');
+
+  const fichesPendingComm=retours.filter(r=>r.statut!=='traite');
+  const fichesPendingEntr=entrepots.filter(r=>!r.rattache);
+  const totalAttenteCount=fichesPendingComm.length+fichesPendingEntr.length;
+  if(countAttenteEl) countAttenteEl.textContent=totalAttenteCount;
+
+  let attenteHTML='';
+
+  // Bloc entrepôt non rattachés
+  if(fichesPendingEntr.length){
+    attenteHTML+=`<div style="margin-bottom:1rem">
+      <div style="font-size:11px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-building-warehouse"></i> Retours entrepôt — en attente de rattachement commercial (${fichesPendingEntr.length})
+      </div>`;
+    attenteHTML+=fichesPendingEntr.map(r=>{
+      const prods=(r.products||[]);
+      return `<div class="decl-card decl-warn">
+        <div class="decl-header">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="num-fiche">${r.numero||'—'}</span>
+            <span style="font-weight:700">${prods.length?prods[0].nom+(prods.length>1?' +'+( prods.length-1)+'':''):'—'}</span>
+            <span class="badge badge-ndecl"><i class="ti ti-alert-circle"></i> À rattacher</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-warn" style="padding:5px 12px;font-size:12px" onclick="showPage('entrepot');setTimeout(()=>ouvrirRattachement('${r.firebaseId}'),200)"><i class="ti ti-link"></i> Rattacher</button>
+            <button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('entrepot','${r.firebaseId}','${r.numero||r.firebaseId}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div class="decl-meta">
+          <span><i class="ti ti-calendar"></i> ${r.date}</span>
+          <span><i class="ti ti-user"></i> ${r.agent||'—'}</span>
+          <span><i class="ti ti-box"></i> ${prods.length} article${prods.length>1?'s':''}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
+          ${prods.map(p=>`<span class="product-tag">${p.nom}${p.qteRecue?' × '+p.qteRecue:''}</span>`).join('')}
+        </div>
+        ${r.comment?`<div style="margin-top:6px;font-size:12px;color:var(--gray)"><i class="ti ti-message"></i> ${r.comment}</div>`:''}
+      </div>`;
+    }).join('');
+    attenteHTML+='</div>';
+  }
+
+  // Bloc fiches commerciales non traitées
+  if(fichesPendingComm.length){
+    attenteHTML+=`<div>
+      <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-clipboard-list"></i> Fiches commerciales — en attente de traitement préparateur (${fichesPendingComm.length})
+      </div>`;
+    attenteHTML+=fichesPendingComm.map(r=>{
+      const ctrl_recap=(()=>{
+        const prods=r.products||[];
+        const totS=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+        const totD=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+        const totM=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+        const parts=[];
+        if(totS)parts.push('<span style="color:#15803d;font-weight:600">✓'+totS+'</span>');
+        if(totD)parts.push('<span style="color:#dc2626;font-weight:600">✗'+totD+'</span>');
+        if(totM)parts.push('<span style="color:#b45309;font-weight:600">⚠'+totM+'</span>');
+        return parts.join(' ');
+      })();
+      const srcTag=r.source==='entrepot_rattache'?'<span class="badge" style="background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff;font-size:10px">Entrepôt rattaché</span>':'';
+      return `<div class="decl-card">
+        <div class="decl-header">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="num-fiche">${r.numero||'—'}</span>
+            <span style="font-weight:700">${r.client}</span>
+            <span style="color:var(--gray);font-size:12px">BL ${r.bl}</span>
+            ${srcTag}
+            <span class="badge badge-${r.statut==='nouveau'?'new':'pending'}">${r.statut==='nouveau'?'Nouveau':'En attente'}</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button>
+            <button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div class="decl-meta">
+          <span><i class="ti ti-calendar"></i> ${r.date}</span>
+          <span><i class="ti ti-truck"></i> ${r.transporteur||'—'}</span>
+          <span><i class="ti ti-box"></i> ${r.products.length} article${r.products.length>1?'s':''}</span>
+          ${r.commercial?`<span><i class="ti ti-user"></i> ${r.commercial}</span>`:''}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
+          ${r.products.map(p=>`<span class="product-tag">${p.nom}${p.qteRecue?' × '+p.qteRecue:''}</span>`).join('')}
+        </div>
+        ${ctrl_recap?`<div style="margin-top:6px;font-size:12px">Contrôle : ${ctrl_recap}</div>`:''}
+      </div>`;
+    }).join('');
+    attenteHTML+='</div>';
+  }
+
+  if(!attenteHTML) attenteHTML=`<div class="empty-state" style="padding:2rem"><i class="ti ti-check" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i>Rien en attente ✓</div>`;
+  enAttenteEl.innerHTML=attenteHTML;
+
+  // ---- TRAITÉES ----
+  const fichesTraitees=retours.filter(r=>r.statut==='traite');
+  const countTraiteEl=document.getElementById('count-traite');
+  if(countTraiteEl) countTraiteEl.textContent=fichesTraitees.length;
+
+  const traiteEl=document.getElementById('decl-traite');
+  if(!fichesTraitees.length){
+    traiteEl.innerHTML=`<div class="empty-state" style="padding:2rem"><i class="ti ti-clipboard-x" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3"></i>Aucune fiche traitée</div>`;
+  } else {
+    traiteEl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed">
       <thead><tr style="border-bottom:1.5px solid var(--gray-light)">
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:90px;text-align:left">N° Fiche</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:110px;text-align:left">Client</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:85px;text-align:left">BL</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:75px;text-align:left">Date</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:65px;text-align:left">Source</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:75px;text-align:left">Statut</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Décision</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:45px;text-align:left">PDF</th>
-        <th style="padding:8px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:50px;text-align:left"></th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:90px;text-align:left">N° Fiche</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:115px;text-align:left">Client</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:85px;text-align:left">BL</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:75px;text-align:left">Date</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:70px;text-align:left">Source</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:120px;text-align:left">Contrôle</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:50px;text-align:left">PDF</th>
+        <th style="padding:7px 8px;color:var(--gray);font-size:10px;text-transform:uppercase;width:45px;text-align:left"></th>
       </tr></thead>
-      <tbody>${window.retours.map(r=>`<tr style="border-bottom:1px solid #f5f3ee">
-        <td style="padding:7px 8px"><span class="num-fiche">${r.numero||'—'}</span></td>
-        <td style="padding:7px 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.client}</td>
-        <td style="padding:7px 8px;color:var(--gray)">${r.bl}</td>
-        <td style="padding:7px 8px;color:var(--gray)">${r.date}</td>
-        <td style="padding:7px 8px">${r.source==='entrepot_rattache'?`<span style="font-size:11px;color:#7c3aed;font-weight:600">Entrepôt</span>`:`<span style="font-size:11px;color:var(--gray)">Commercial</span>`}</td>
-        <td style="padding:7px 8px"><span class="badge badge-${r.statut==='nouveau'?'new':r.statut==='en_attente'?'pending':'done'}">${r.statut==='nouveau'?'Nouveau':r.statut==='en_attente'?'En attente':'Traité'}</span></td>
-        <td style="padding:7px 8px">${(()=>{
-          const prods=r.products||[];
-          const totS=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
-          const totD=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
-          const totM=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
-          const parts=[];
-          if(totS>0)parts.push('<span style="color:#15803d;font-size:11px;font-weight:600">✓'+totS+'</span>');
-          if(totD>0)parts.push('<span style="color:#dc2626;font-size:11px;font-weight:600">✗'+totD+'</span>');
-          if(totM>0)parts.push('<span style="color:#b45309;font-size:11px;font-weight:600">⚠'+totM+'</span>');
-          return parts.length?parts.join(' '):'—';
-        })()}</td>
-        <td style="padding:7px 8px"><button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button></td>
-        <td style="padding:7px 8px"><button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button></td>
-      </tr>`).join('')}</tbody>
+      <tbody>${fichesTraitees.map(r=>{
+        const prods=r.products||[];
+        const totS=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+        const totD=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+        const totM=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+        const parts=[];
+        if(totS)parts.push('<span style="color:#15803d;font-weight:600">✓'+totS+'</span>');
+        if(totD)parts.push('<span style="color:#dc2626;font-weight:600">✗'+totD+'</span>');
+        if(totM)parts.push('<span style="color:#b45309;font-weight:600">⚠'+totM+'</span>');
+        return `<tr style="border-bottom:1px solid #f5f3ee">
+          <td style="padding:7px 8px"><span class="num-fiche">${r.numero||'—'}</span></td>
+          <td style="padding:7px 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.client}</td>
+          <td style="padding:7px 8px;color:var(--gray)">${r.bl}</td>
+          <td style="padding:7px 8px;color:var(--gray)">${r.date}</td>
+          <td style="padding:7px 8px">${r.source==='entrepot_rattache'?'<span style="font-size:11px;color:#7c3aed;font-weight:600">Entrepôt</span>':'<span style="font-size:11px;color:var(--gray)">Commercial</span>'}</td>
+          <td style="padding:7px 8px">${parts.length?parts.join(' '):'<span style="color:var(--gray)">—</span>'}</td>
+          <td style="padding:7px 8px"><button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button></td>
+          <td style="padding:7px 8px"><button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button></td>
+        </tr>`;
+      }).join('')}</tbody>
     </table>`;
+  }
 };
 
 // ---- SUPPRESSION ----
