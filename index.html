@@ -41,7 +41,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 /* Autocomplete */
 .autocomplete-wrap{position:relative}
 .autocomplete-wrap input{width:100%}
-.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--white);border:1.5px solid rgba(200,168,75,.4);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:200;max-height:200px;overflow-y:auto;margin-top:3px}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--white);border:1.5px solid rgba(200,168,75,.4);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:300;max-height:200px;overflow-y:auto;margin-top:3px;min-width:180px}
 .autocomplete-item{padding:10px 14px;font-size:13px;cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--gray-light)}
 .autocomplete-item:last-child{border-bottom:none}
 .autocomplete-item:hover{background:var(--cream)}
@@ -370,6 +370,7 @@ onValue(ref(db,'retours_entrepot'),snap=>{
   const d=snap.val();
   window.retoursEntrepot=d?Object.entries(d).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)):[];
   updateNotifEntrepot();updateAlerteNdecl();
+  buildHistorique();
   const ap=document.querySelector('.page.active');
   if(ap?.id==='page-entrepot')window.renderEntrepotList();
   updateSyncLabel();
@@ -382,18 +383,28 @@ window.setSyncStatus=setSyncStatus;
 
 <script>
 window.retours=[];window.retoursEntrepot=[];window.currentFilter='all';window.openId=null;window.rattachId=null;window._compteur=0;
-window._histo={clients:[],bls:[]};
+window._histo={clients:[],bls:[],produits:[],origines:[]};
 const SITE_URL='https://moorea-retours.vercel.app';
 
 // ---- HISTORIQUE AUTOCOMPLETE ----
 function buildHistorique(){
-  const clients=new Map(),bls=new Map();
-  (window.retours||[]).forEach(r=>{
+  const clients=new Map(),bls=new Map(),produits=new Map(),origines=new Set();
+  const allFiches=[...(window.retours||[]),...(window.retoursEntrepot||[])];
+  allFiches.forEach(r=>{
     if(r.client) clients.set(r.client,{client:r.client,transporteur:r.transporteur||'',commercial:r.commercial||''});
     if(r.bl) bls.set(String(r.bl),{bl:String(r.bl),client:r.client||'',dateLiv:r.dateLiv||''});
+    (r.products||[]).forEach(p=>{
+      if(p.nom){
+        const key=p.nom.toLowerCase().trim();
+        if(!produits.has(key)) produits.set(key,{nom:p.nom,origine:p.origine||''});
+      }
+      if(p.origine&&p.origine.trim()) origines.add(p.origine.trim());
+    });
   });
   window._histo.clients=[...clients.values()];
   window._histo.bls=[...bls.values()];
+  window._histo.produits=[...produits.values()];
+  window._histo.origines=[...origines].sort();
 }
 
 function acClient(input){
@@ -450,10 +461,58 @@ function selectClientModal(c){
   if(c.commercial) document.getElementById('r-commercial').value=c.commercial;
   document.getElementById('ac-r-client').style.display='none';
 }
+// Autocomplete produits inline dans tableau
+let _acActiveInput=null;
+function showAcProduit(input){
+  _acActiveInput=input;
+  const q=input.value.trim().toLowerCase();
+  let list=input.parentNode.querySelector('.ac-inline');
+  if(!list){list=document.createElement('div');list.className='autocomplete-list ac-inline';input.parentNode.appendChild(list);}
+  if(!q){list.style.display='none';return;}
+  const matches=window._histo.produits.filter(p=>p.nom.toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(p=>`<div class="autocomplete-item" onmousedown="event.preventDefault();selectProduit(this,${JSON.stringify(p).replace(/"/g,'&quot;')})">
+    <div class="ac-main">${p.nom}</div>
+    ${p.origine?`<div class="ac-sub">📍 ${p.origine}</div>`:''}
+  </div>`).join('');
+  list.style.display='block';
+}
+function selectProduit(el, p){
+  const td=el.closest('td');const tr=td.closest('tr');
+  // set nom
+  td.querySelector('input').value=p.nom;
+  td.querySelector('.ac-inline').style.display='none';
+  // set origine if available
+  if(p.origine){
+    const origineInput=tr.querySelector('td:nth-child(3) input');
+    if(origineInput&&!origineInput.value) origineInput.value=p.origine;
+  }
+}
+function showAcOrigine(input){
+  _acActiveInput=input;
+  const q=input.value.trim().toLowerCase();
+  let list=input.parentNode.querySelector('.ac-inline');
+  if(!list){list=document.createElement('div');list.className='autocomplete-list ac-inline';input.parentNode.appendChild(list);}
+  const matches=window._histo.origines.filter(o=>!q||o.toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.map(o=>`<div class="autocomplete-item" onmousedown="event.preventDefault();selectOrigine(this,'${o.replace(/'/g,"\\'")}')">
+    <div class="ac-main">📍 ${o}</div>
+  </div>`).join('');
+  list.style.display='block';
+}
+function selectOrigine(el,o){
+  el.closest('td').querySelector('input').value=o;
+  el.closest('td').querySelector('.ac-inline').style.display='none';
+}
+
 document.addEventListener('click',e=>{
   ['ac-client','ac-bl','ac-r-client'].forEach(id=>{
     const el=document.getElementById(id);
     if(el&&!el.contains(e.target)) el.style.display='none';
+  });
+  // fermer toutes les listes inline
+  document.querySelectorAll('.ac-inline').forEach(l=>{
+    if(!l.contains(e.target)&&e.target!==l.previousElementSibling) l.style.display='none';
   });
 });
 
@@ -498,9 +557,13 @@ function showPage(id){
 function makeCommRow(){
   const tr=document.createElement('tr');
   tr.innerHTML=`
-    <td><input type="text" placeholder="Nom du produit"></td>
+    <td style="position:relative">
+      <input type="text" placeholder="Nom du produit" oninput="showAcProduit(this)" onfocus="showAcProduit(this)" autocomplete="off">
+    </td>
     <td><input type="number" placeholder="Lot" min="0" step="1"></td>
-    <td><input type="text" placeholder="Origine" style="width:100%"></td>
+    <td style="position:relative">
+      <input type="text" placeholder="Origine" oninput="showAcOrigine(this)" onfocus="showAcOrigine(this)" autocomplete="off">
+    </td>
     <td><div class="qte-cell">
       <input type="number" placeholder="Att." min="0" oninput="updateDiff(this)">
       <span class="qte-sep">/</span>
@@ -571,9 +634,13 @@ async function submitRetour(){
 function makeEntrepotRow(){
   const tr=document.createElement('tr');
   tr.innerHTML=`
-    <td><input type="text" placeholder="Description"></td>
+    <td style="position:relative">
+      <input type="text" placeholder="Description" oninput="showAcProduit(this)" onfocus="showAcProduit(this)" autocomplete="off">
+    </td>
     <td><input type="number" placeholder="Lot" min="0" step="1"></td>
-    <td><input type="text" placeholder="Origine"></td>
+    <td style="position:relative">
+      <input type="text" placeholder="Origine" oninput="showAcOrigine(this)" onfocus="showAcOrigine(this)" autocomplete="off">
+    </td>
     <td><input type="number" placeholder="Qté" min="0"></td>
     <td><select>
       <option value="">-- État --</option>
@@ -755,24 +822,36 @@ function genererPDF(fiche){
       y+=7.5;doc.setDrawColor(240,237,230);doc.setLineWidth(0.2);doc.line(ml,y-1,ml+cw,y-1);
     });y+=4;
   }
-  // Contrôle interne
-  if(fiche.decision||fiche.commentPrep||(!fiche.products?.every(p=>p.decisionArticle))){
-    secTitle('Contrôle interne');
-    const bw=cw/2-3;
-    doc.setDrawColor(21,128,61);doc.setLineWidth(0.5);doc.rect(ml,y-2,bw,14);
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(21,128,61);
-    doc.text('✓  MARCHANDISE CONFORME',ml+3,y+2);
-    doc.setDrawColor(200,200,200);doc.setLineWidth(0.4);doc.rect(ml+3,y+5,4,4);
-    if(fiche.decision==='stock'){doc.setFillColor(21,128,61);doc.rect(ml+4,y+6,2,2,'F');}
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(40,40,40);doc.text('Remise en stock',ml+10,y+9);
-    const c2x=ml+bw+6;
-    doc.setDrawColor(220,38,38);doc.setLineWidth(0.5);doc.rect(c2x,y-2,bw,14);
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(220,38,38);
-    doc.text('✗  MARCHANDISE NON CONFORME',c2x+3,y+2);
-    doc.setDrawColor(200,200,200);doc.setLineWidth(0.4);doc.rect(c2x+3,y+5,4,4);
-    if(fiche.decision==='destruction'){doc.setFillColor(220,38,38);doc.rect(c2x+4,y+6,2,2,'F');}
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(40,40,40);doc.text('Destruction',c2x+10,y+9);
-    y+=20;
+  // Contrôle interne par article
+  const hasControle=(fiche.products||[]).some(p=>p.controle&&(p.controle.qStock||p.controle.qDestroy||p.controle.qManque));
+  if(hasControle){
+    if(y>230){doc.addPage();y=20;}
+    secTitle('Contrôle interne par article');
+    // En-têtes
+    const ctrlCols=[['PRODUIT',55],['REÇU',16],['EN STOCK',22],['DÉTRUIT',22],['MANQUANT',22]];
+    let cx=ml;
+    doc.setFillColor(230,224,210);doc.rect(ml,y-4,cw,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(80,80,80);
+    ctrlCols.forEach(([h,w])=>{doc.text(h,cx+2,y);cx+=w;});
+    y+=5;
+    (fiche.products||[]).forEach((p,i)=>{
+      if(y>265){doc.addPage();y=20;}
+      if(i%2===0){doc.setFillColor(252,250,247);doc.rect(ml,y-3.5,cw,7.5,'F');}
+      const ctrl=p.controle||{};
+      cx=ml;
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(20,20,20);
+      doc.text(doc.splitTextToSize(p.nom||'—',51)[0],cx+2,y);cx+=ctrlCols[0][1];
+      doc.setFont('helvetica','normal');doc.setTextColor(60,60,60);
+      doc.text(String(p.qteRecue||'—'),cx+2,y);cx+=ctrlCols[1][1];
+      doc.setTextColor(21,128,61);doc.setFont('helvetica','bold');
+      doc.text(ctrl.qStock!=null?String(ctrl.qStock):'—',cx+2,y);cx+=ctrlCols[2][1];
+      doc.setTextColor(220,38,38);
+      doc.text(ctrl.qDestroy!=null?String(ctrl.qDestroy):'—',cx+2,y);cx+=ctrlCols[3][1];
+      doc.setTextColor(180,83,9);
+      doc.text(ctrl.qManque!=null?String(ctrl.qManque):'—',cx+2,y);
+      y+=7.5;doc.setDrawColor(240,237,230);doc.setLineWidth(0.2);doc.line(ml,y-1,ml+cw,y-1);
+    });
+    y+=4;
   }
   // Commentaires
   const allC=[fiche.comment,fiche.commentPrep].filter(Boolean);
@@ -938,23 +1017,73 @@ window.renderRetours=function(filter){
             }).join('')}</tbody>
           </table>
           ${r.comment?`<div style="font-size:13px;color:var(--gray);margin-bottom:.75rem;padding:10px 14px;background:var(--cream);border-radius:8px"><i class="ti ti-message"></i> ${r.comment}</div>`:''}
-          <div class="section-header"><i class="ti ti-shield-check"></i> Contrôle interne (fiche globale)</div>
-          <div class="controle-grid">
-            <div class="controle-col">
-              <div class="controle-col-title conforme">✓ Marchandise conforme</div>
-              <div class="check-option"><input type="checkbox" id="stock-${fid}" ${r.decision==='stock'?'checked':''} onchange="setDecision('${fid}','stock',this)"><label for="stock-${fid}"><i class="ti ti-arrow-back-up"></i> Remise en stock</label></div>
-            </div>
-            <div class="controle-col">
-              <div class="controle-col-title non-conforme">✗ Marchandise non conforme</div>
-              <div class="check-option"><input type="checkbox" id="destroy-${fid}" ${r.decision==='destruction'?'checked':''} onchange="setDecision('${fid}','destruction',this)"><label for="destroy-${fid}"><i class="ti ti-trash"></i> Destruction</label></div>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-top:1rem">
+          <div class="section-header"><i class="ti ti-shield-check"></i> Contrôle interne — par article</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1rem">
+            <thead>
+              <tr style="border-bottom:1.5px solid var(--gray-light)">
+                <th style="padding:7px 8px;text-align:left;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:22%">Produit</th>
+                <th style="padding:7px 8px;text-align:center;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:10%">Reçu</th>
+                <th style="padding:7px 8px;text-align:center;color:#15803d;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:28%">✓ Remise en stock</th>
+                <th style="padding:7px 8px;text-align:center;color:#dc2626;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:22%">✗ Destruction</th>
+                <th style="padding:7px 8px;text-align:center;color:#b45309;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:18%">Manque</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${r.products.map((p,pi)=>{
+                const recu=parseInt(p.qteRecue)||0;
+                const ctrl=p.controle||{};
+                const qStock=ctrl.qStock!=null?ctrl.qStock:'';
+                const qDestroy=ctrl.qDestroy!=null?ctrl.qDestroy:'';
+                const qManque=ctrl.qManque!=null?ctrl.qManque:'';
+                return `<tr style="border-bottom:1px solid #f5f3ee">
+                  <td style="padding:7px 8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nom}<br><span style="font-weight:400;color:var(--gray);font-size:11px">${p.origine?'📍 '+p.origine:''}</span></td>
+                  <td style="padding:7px 8px;text-align:center;font-weight:700">${recu||'—'}</td>
+                  <td style="padding:7px 8px">
+                    <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                      <input type="number" min="0" max="${recu}" value="${qStock}" placeholder="0"
+                        style="width:55px;text-align:center;border:1.5px solid #bbf7d0;border-radius:8px;padding:5px;background:#f0fdf4;color:#15803d;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        onchange="setControleArticle('${fid}',${pi},'qStock',this.value)">
+                      <span style="font-size:11px;color:#15803d">colis</span>
+                    </div>
+                  </td>
+                  <td style="padding:7px 8px">
+                    <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                      <input type="number" min="0" max="${recu}" value="${qDestroy}" placeholder="0"
+                        style="width:55px;text-align:center;border:1.5px solid #fecaca;border-radius:8px;padding:5px;background:#fff5f5;color:#dc2626;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        onchange="setControleArticle('${fid}',${pi},'qDestroy',this.value)">
+                      <span style="font-size:11px;color:#dc2626">colis</span>
+                    </div>
+                  </td>
+                  <td style="padding:7px 8px">
+                    <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+                      <input type="number" min="0" value="${qManque}" placeholder="0"
+                        style="width:55px;text-align:center;border:1.5px solid #fde68a;border-radius:8px;padding:5px;background:#fffbf0;color:#b45309;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
+                        onchange="setControleArticle('${fid}',${pi},'qManque',this.value)">
+                      <span style="font-size:11px;color:#b45309">colis</span>
+                    </div>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:.5rem">
             <label style="font-size:11px;color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Commentaire préparateur</label>
             <textarea style="padding:11px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:60px;background:var(--white);color:var(--dark);outline:none" placeholder="Observations..." onchange="setComment('${fid}',this.value)">${r.commentPrep||''}</textarea>
           </div>
-          <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
-            ${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'✓ Remise en stock':'✗ Destruction'}</span>`:''}
+          <div class="controle-recap" style="margin-top:.75rem;padding:10px 12px;background:var(--cream);border-radius:10px;font-size:12px;color:var(--gray)">
+            ${(()=>{
+              const totStock=(r.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+              const totDestroy=(r.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+              const totManque=(r.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+              const parts=[];
+              if(totStock>0) parts.push('<span style="color:#15803d;font-weight:600">✓ '+totStock+' en stock</span>');
+              if(totDestroy>0) parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totDestroy+' détruits</span>');
+              if(totManque>0) parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totManque+' manquants</span>');
+              return parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée pour l'instant.';
+            })()}
+          </div>
+          <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-primary" style="padding:8px 18px;font-size:12px" onclick="event.stopPropagation();validerControle('${fid}')"><i class="ti ti-check"></i> Valider le contrôle</button>
             <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="event.stopPropagation();genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${fid}'))"><i class="ti ti-file-download"></i> PDF</button>
             <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager</button>
             <button style="padding:7px 14px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="event.stopPropagation();demanderSuppression('retour','${fid}','${r.numero||fid}')"><i class="ti ti-trash"></i> Supprimer</button>
@@ -966,15 +1095,49 @@ window.renderRetours=function(filter){
 };
 
 function toggleDetail(id){window.openId=window.openId===id?null:id;renderRetours(window.currentFilter);}
-async function setDecision(fid,decision,checkbox){
+
+// Contrôle par article — mise à jour locale instantanée + sauvegarde Firebase
+async function setControleArticle(fid, pi, field, val){
   const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
-  const newD=checkbox.checked?decision:null,newS=checkbox.checked?'traite':'en_attente';
-  if(checkbox.checked){const ob=document.getElementById((decision==='stock'?'destroy':'stock')+'-'+fid);if(ob)ob.checked=false;}
-  try{await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{decision:newD,statut:newS});showToast(decision==='stock'?'Remise en stock':'Destruction');}
-  catch(e){showToast('Erreur : '+e.message);}
+  if(!fiche.products[pi]) return;
+  if(!fiche.products[pi].controle) fiche.products[pi].controle={};
+  fiche.products[pi].controle[field]=val===''?null:parseInt(val)||0;
+  // Rafraîchit le récap en temps réel sans re-render toute la liste
+  const card=document.querySelector(`[onclick*="toggleDetail('${fid}')"]`);
+  if(card){
+    const recap=card.querySelector('.controle-recap');
+    if(recap){
+      const prods=fiche.products||[];
+      const totStock=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+      const totDestroy=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+      const totManque=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+      const parts=[];
+      if(totStock>0) parts.push('<span style="color:#15803d;font-weight:600">✓ '+totStock+' en stock</span>');
+      if(totDestroy>0) parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totDestroy+' détruits</span>');
+      if(totManque>0) parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totManque+' manquants</span>');
+      recap.innerHTML=parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée pour l'instant.';
+    }
+  }
 }
+
+async function validerControle(fid){
+  const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
+  const products=fiche.products.map(p=>({...p,controle:p.controle||{}}));
+  // Détermine statut global : traité si au moins un article a une décision
+  const aDecision=products.some(p=>p.controle.qStock||p.controle.qDestroy||p.controle.qManque);
+  try{
+    await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{
+      products,
+      statut: aDecision?'traite':'en_attente',
+      commentPrep: fiche.commentPrep||''
+    });
+    showToast('Contrôle enregistré !');
+  }catch(e){showToast('Erreur : '+e.message);}
+}
+
 async function setComment(fid,val){
   const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
+  fiche.commentPrep=val;
   try{await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{commentPrep:val});}catch(e){}
 }
 
@@ -1009,7 +1172,17 @@ window.renderSuivi=function(){
         <td style="padding:7px 8px;color:var(--gray)">${r.date}</td>
         <td style="padding:7px 8px">${r.source==='entrepot_rattache'?`<span style="font-size:11px;color:#7c3aed;font-weight:600">Entrepôt</span>`:`<span style="font-size:11px;color:var(--gray)">Commercial</span>`}</td>
         <td style="padding:7px 8px"><span class="badge badge-${r.statut==='nouveau'?'new':r.statut==='en_attente'?'pending':'done'}">${r.statut==='nouveau'?'Nouveau':r.statut==='en_attente'?'En attente':'Traité'}</span></td>
-        <td style="padding:7px 8px">${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'Stock':'Détruit'}</span>`:'—'}</td>
+        <td style="padding:7px 8px">${(()=>{
+          const prods=r.products||[];
+          const totS=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+          const totD=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+          const totM=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+          const parts=[];
+          if(totS>0)parts.push('<span style="color:#15803d;font-size:11px;font-weight:600">✓'+totS+'</span>');
+          if(totD>0)parts.push('<span style="color:#dc2626;font-size:11px;font-weight:600">✗'+totD+'</span>');
+          if(totM>0)parts.push('<span style="color:#b45309;font-size:11px;font-weight:600">⚠'+totM+'</span>');
+          return parts.length?parts.join(' '):'—';
+        })()}</td>
         <td style="padding:7px 8px"><button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button></td>
         <td style="padding:7px 8px"><button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button></td>
       </tr>`).join('')}</tbody>
