@@ -34,7 +34,6 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .section-title{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
 .section-title::before{content:'';display:block;width:3px;height:16px;background:var(--gold);border-radius:2px}
 .card{background:var(--white);border:1.5px solid var(--gray-light);border-radius:20px;padding:1.5rem;margin-bottom:1rem}
-.card-alert{background:#fffbf0;border:1.5px solid rgba(200,168,75,.45);border-radius:20px;padding:1.5rem;margin-bottom:1rem}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 @media(max-width:520px){.form-row{grid-template-columns:1fr}}
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
@@ -63,6 +62,10 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .btn-secondary:hover{background:var(--cream2)}
 .btn-warn{padding:9px 20px;background:transparent;color:#b45309;border:1.5px solid #fde68a;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
 .btn-warn:hover{background:#fef3c7}
+.btn-green{padding:11px 22px;background:#dcfce7;color:#15803d;border:1.5px solid #bbf7d0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.btn-green:hover{background:#bbf7d0}
+.btn-purple{padding:11px 22px;background:#f3e8ff;color:#7c3aed;border:1.5px solid #e9d5ff;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.btn-purple:hover{background:#e9d5ff}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:1.25rem;flex-wrap:wrap}
 .separator{height:1.5px;background:var(--gray-light);margin:1.25rem 0}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600}
@@ -74,6 +77,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .badge-manque{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
 .badge-ndecl{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
 .badge-rattache{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.num-fiche{font-size:11px;font-weight:700;color:var(--gold);background:rgba(200,168,75,.12);border:1px solid var(--gold-border);border-radius:6px;padding:2px 8px;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
 .retour-card{background:var(--white);border:1.5px solid var(--gray-light);border-radius:16px;padding:1.1rem 1.4rem;margin-bottom:10px;cursor:pointer;transition:all .15s}
 .retour-card:hover{border-color:rgba(200,168,75,.5);box-shadow:0 4px 16px rgba(200,168,75,.08)}
 .retour-card.non-declare{border-color:#fde68a;background:#fffdf5}
@@ -108,13 +112,18 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 .empty-state i{font-size:44px;display:block;margin-bottom:14px;opacity:.3}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:var(--gold);padding:13px 22px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid var(--gold-border)}
 .toast.show{opacity:1}
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:1rem}
+/* SUCCESS MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:1rem}
 .modal-bg.open{display:flex}
-.modal{background:var(--white);border-radius:20px;padding:2rem;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:1.5rem;display:flex;align-items:center;gap:8px}
-.modal-title i{color:var(--gold);font-size:18px}
+.modal{background:var(--white);border-radius:20px;padding:2rem;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:.5rem;display:flex;align-items:center;gap:8px}
+.modal-title i{color:var(--gold);font-size:20px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap}
+.recap-box{background:var(--cream);border:1.5px solid var(--gray-light);border-radius:12px;padding:1rem 1.2rem;font-size:13px;line-height:1.9;margin:1rem 0;white-space:pre-wrap;font-family:'DM Sans',sans-serif;color:var(--dark)}
+.share-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1rem}
+@media(max-width:400px){.share-options{grid-template-columns:1fr}}
+.num-fiche-big{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:1px;text-align:center;margin:.5rem 0}
+.num-fiche-label{font-size:11px;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -143,12 +152,9 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 
 <div class="app">
 
-  <!-- ===== PAGE COMMERCIAL ===== -->
+  <!-- PAGE COMMERCIAL -->
   <div class="page active" id="page-commercial">
-
-    <!-- Alerte retours non déclarés à rattacher -->
     <div id="alerte-ndecl" style="display:none"></div>
-
     <div class="section-title">Nouvelle fiche de retour client</div>
     <div class="card">
       <div class="section-header"><i class="ti ti-info-circle"></i> Informations générales</div>
@@ -164,12 +170,9 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
       <div class="section-header"><i class="ti ti-box"></i> Produits retournés / manquants</div>
       <table class="products-table">
         <thead><tr>
-          <th style="width:22%">Produit</th>
-          <th style="width:14%">N° de lot</th>
-          <th style="width:24%">Qté attendue / reçue</th>
-          <th style="width:4%"></th>
-          <th style="width:30%">Motif du retour</th>
-          <th style="width:6%"></th>
+          <th style="width:22%">Produit</th><th style="width:14%">N° de lot</th>
+          <th style="width:24%">Qté attendue / reçue</th><th style="width:4%"></th>
+          <th style="width:30%">Motif du retour</th><th style="width:6%"></th>
         </tr></thead>
         <tbody id="products-body"></tbody>
       </table>
@@ -183,11 +186,11 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     </div>
   </div>
 
-  <!-- ===== PAGE ENTREPOT ===== -->
+  <!-- PAGE ENTREPOT -->
   <div class="page" id="page-entrepot">
     <div class="section-title">Retour reçu non déclaré</div>
     <div class="card">
-      <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">Un colis est arrivé sans qu'un commercial ne l'ait signalé ? Remplis cette fiche. Le commercial pourra ensuite la rattacher à une commande.</p>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">Un colis est arrivé sans déclaration préalable ? Remplis cette fiche. Le commercial pourra la rattacher à une commande.</p>
       <div class="section-header"><i class="ti ti-box"></i> Description du colis reçu</div>
       <div class="form-row">
         <div class="form-group"><label>Reçu par (entrepôt)</label><input type="text" id="e-agent" placeholder="Votre prénom"></div>
@@ -201,12 +204,8 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
       <div class="form-group"><label>État apparent</label>
         <select id="e-etat">
           <option value="">-- Sélectionner --</option>
-          <option>Bon état</option>
-          <option>Emballage abîmé</option>
-          <option>Produit endommagé</option>
-          <option>Moisissure visible</option>
-          <option>Pourriture partielle</option>
-          <option>Autre</option>
+          <option>Bon état</option><option>Emballage abîmé</option><option>Produit endommagé</option>
+          <option>Moisissure visible</option><option>Pourriture partielle</option><option>Autre</option>
         </select>
       </div>
       <div class="form-group"><label>Commentaires</label><textarea id="e-comment" placeholder="Toute information utile pour le commercial..."></textarea></div>
@@ -215,14 +214,13 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
       <button class="btn-secondary" onclick="resetEntrepot()">Réinitialiser</button>
       <button class="btn-primary" id="btn-entrepot-submit" onclick="submitEntrepot()"><i class="ti ti-send"></i> Envoyer au commercial</button>
     </div>
-
     <div style="margin-top:2rem">
       <div class="section-title">Fiches envoyées</div>
       <div id="entrepot-list"></div>
     </div>
   </div>
 
-  <!-- ===== PAGE PREPARATEUR ===== -->
+  <!-- PAGE PREPARATEUR -->
   <div class="page" id="page-preparateur">
     <div class="section-title">Retours à traiter</div>
     <div class="filter-bar">
@@ -234,7 +232,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <div id="retours-list"></div>
   </div>
 
-  <!-- ===== PAGE SUIVI ===== -->
+  <!-- PAGE SUIVI -->
   <div class="page" id="page-suivi">
     <div class="section-title">Tableau de suivi</div>
     <div class="stat-grid" id="stats-grid"></div>
@@ -244,13 +242,42 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     </div>
   </div>
 
-</div><!-- /app -->
+</div>
+
+<!-- MODAL SUCCÈS + PARTAGE -->
+<div class="modal-bg" id="modal-success">
+  <div class="modal">
+    <div style="text-align:center;margin-bottom:1.25rem">
+      <div style="font-size:40px;margin-bottom:.5rem">✅</div>
+      <div class="num-fiche-label">Numéro de fiche</div>
+      <div class="num-fiche-big" id="modal-num-fiche">RC-2026-001</div>
+      <div style="font-size:13px;color:var(--gray)" id="modal-sous-titre">Fiche enregistrée avec succès</div>
+    </div>
+    <div class="section-header"><i class="ti ti-message-share"></i> Envoyer un message récap</div>
+    <p style="font-size:12px;color:var(--gray);margin-bottom:.75rem">Choisis le type de message à envoyer à l'équipe :</p>
+    <div class="share-options">
+      <button class="btn-green" onclick="genererMessage('attendu')"><i class="ti ti-truck-delivery"></i> Retour attendu</button>
+      <button class="btn-purple" onclick="genererMessage('inattendu')"><i class="ti ti-alert-circle"></i> Arrivage inattendu</button>
+    </div>
+    <div id="recap-message-zone" style="display:none">
+      <div class="recap-box" id="recap-message-text"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:.75rem">
+        <button class="btn-primary" onclick="copierMessage()"><i class="ti ti-copy"></i> Copier le message</button>
+        <button class="btn-secondary" onclick="partagerWhatsapp()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
+        <button class="btn-secondary" onclick="partagerEmail()"><i class="ti ti-mail"></i> Email</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fermerModalSuccess()">Fermer</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL RATTACHEMENT -->
 <div class="modal-bg" id="modal-rattach">
   <div class="modal">
     <div class="modal-title"><i class="ti ti-link"></i> Rattacher à une commande</div>
-    <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">L'entrepôt a reçu ce colis sans déclaration préalable. Renseigne les informations de la commande correspondante.</p>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:1.25rem;line-height:1.7">Renseigne les informations de la commande correspondante à ce retour entrepôt.</p>
     <div id="modal-entrepot-recap" style="background:var(--cream);border-radius:10px;padding:12px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--gray);line-height:1.8"></div>
     <div class="form-row">
       <div class="form-group"><label>Client</label><input type="text" id="r-client" placeholder="ex : Carrefour Billy"></div>
@@ -263,7 +290,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <div class="form-group"><label>Commercial</label><input type="text" id="r-commercial" placeholder="Votre nom"></div>
     <div class="form-group"><label>Commentaires</label><textarea id="r-comment" placeholder="Informations complémentaires..."></textarea></div>
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn-secondary" onclick="closeRattachModal()">Annuler</button>
       <button class="btn-primary" onclick="confirmerRattachement()"><i class="ti ti-link"></i> Rattacher et créer la fiche</button>
     </div>
   </div>
@@ -274,7 +301,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, push, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, push, onValue, update, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAR0BdIsWrA7UDKfCFSANbqxDrIsqLq6BA",
@@ -288,16 +315,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-window._db = db;
-window._ref = ref;
-window._push = push;
-window._update = update;
-window._remove = remove;
+window._db = db; window._ref = ref; window._push = push; window._update = update; window._get = get;
 
 setSyncStatus('loading','Connexion...');
 
-// Écoute retours classiques
 onValue(ref(db,'retours'), snap => {
   const data = snap.val();
   window.retours = data ? Object.entries(data).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)) : [];
@@ -305,65 +326,61 @@ onValue(ref(db,'retours'), snap => {
   if(ap?.id==='page-preparateur') window.renderRetours(window.currentFilter);
   if(ap?.id==='page-suivi') window.renderSuivi();
   updateSyncLabel();
-}, err => { setSyncStatus('error','Erreur'); showToast('Erreur Firebase : '+err.message); });
+}, err=>{ setSyncStatus('error','Erreur'); showToast('Erreur Firebase : '+err.message); });
 
-// Écoute retours entrepôt non déclarés
 onValue(ref(db,'retours_entrepot'), snap => {
   const data = snap.val();
   window.retoursEntrepot = data ? Object.entries(data).map(([id,v])=>({...v,firebaseId:id})).sort((a,b)=>(b.ts||0)-(a.ts||0)) : [];
-  updateNotifEntrepot();
-  updateAlerteNdecl();
+  updateNotifEntrepot(); updateAlerteNdecl();
   const ap = document.querySelector('.page.active');
   if(ap?.id==='page-entrepot') window.renderEntrepotList();
   updateSyncLabel();
-}, err => {});
+});
+
+// Compteur global de fiches pour numérotation
+onValue(ref(db,'compteur'), snap => {
+  window._compteur = snap.val() || 0;
+});
 
 function updateSyncLabel(){
-  const total = (window.retours||[]).length + (window.retoursEntrepot||[]).length;
-  setSyncStatus('ok', total + ' fiche'+(total!==1?'s':'')+' · Temps réel');
+  const total=(window.retours||[]).length+(window.retoursEntrepot||[]).length;
+  setSyncStatus('ok',total+' fiche'+(total!==1?'s':'')+' · Temps réel');
 }
-
-function setSyncStatus(state,label){
-  document.getElementById('sync-dot').className='sync-dot '+state;
-  document.getElementById('sync-label').textContent=label;
-}
-window.setSyncStatus = setSyncStatus;
+function setSyncStatus(s,l){ document.getElementById('sync-dot').className='sync-dot '+s; document.getElementById('sync-label').textContent=l; }
+window.setSyncStatus=setSyncStatus;
 </script>
 
 <script>
-window.retours = [];
-window.retoursEntrepot = [];
-window.currentFilter = 'all';
-window.openId = null;
-window.rattachId = null;
+window.retours=[];window.retoursEntrepot=[];window.currentFilter='all';window.openId=null;window.rattachId=null;
+window._compteur=0;
+const SITE_URL='https://moorea-retours.vercel.app';
 
-function updateNotifEntrepot(){
-  const nonRattaches = (window.retoursEntrepot||[]).filter(r=>!r.rattache);
-  const badge = document.getElementById('notif-entrepot');
-  if(nonRattaches.length > 0){
-    badge.textContent = nonRattaches.length;
-    badge.style.display = 'inline-block';
-  } else {
-    badge.style.display = 'none';
-  }
+// ---- NUMÉROTATION ----
+async function getNextNumero(){
+  try{
+    const snap = await window._get(window._ref(window._db,'compteur'));
+    const current = (snap.val()||0)+1;
+    await window._update(window._ref(window._db,'/'),{compteur:current});
+    const year = new Date().getFullYear();
+    return 'RC-'+year+'-'+String(current).padStart(3,'0');
+  }catch(e){ return 'RC-'+Date.now(); }
 }
 
+// ---- NOTIFICATIONS ----
+function updateNotifEntrepot(){
+  const n=(window.retoursEntrepot||[]).filter(r=>!r.rattache).length;
+  const b=document.getElementById('notif-entrepot');
+  b.textContent=n; b.style.display=n>0?'inline-block':'none';
+}
 function updateAlerteNdecl(){
-  const nonRattaches = (window.retoursEntrepot||[]).filter(r=>!r.rattache);
-  const div = document.getElementById('alerte-ndecl');
-  if(!div) return;
-  if(nonRattaches.length > 0){
-    div.style.display = 'block';
-    div.innerHTML = `<div class="alert-ndecl">
-      <i class="ti ti-alert-circle" style="font-size:20px;flex-shrink:0"></i>
-      <div style="flex:1">
-        <strong>${nonRattaches.length} retour${nonRattaches.length>1?'s':''} non déclaré${nonRattaches.length>1?'s':''}</strong> reçu${nonRattaches.length>1?'s':''} en entrepôt — à rattacher à une commande.
-      </div>
-      <button class="btn-warn" onclick="showPage('entrepot')"><i class="ti ti-link"></i> Voir et rattacher</button>
-    </div>`;
-  } else {
-    div.style.display = 'none';
-  }
+  const nr=(window.retoursEntrepot||[]).filter(r=>!r.rattache);
+  const div=document.getElementById('alerte-ndecl'); if(!div) return;
+  if(nr.length>0){
+    div.style.display='block';
+    div.innerHTML=`<div class="alert-ndecl"><i class="ti ti-alert-circle" style="font-size:20px;flex-shrink:0"></i>
+      <div style="flex:1"><strong>${nr.length} retour${nr.length>1?'s':''} non déclaré${nr.length>1?'s':''}</strong> reçu${nr.length>1?'s':''} en entrepôt — à rattacher à une commande.</div>
+      <button class="btn-warn" onclick="showPage('entrepot')"><i class="ti ti-link"></i> Voir et rattacher</button></div>`;
+  } else { div.style.display='none'; }
 }
 
 function showPage(id){
@@ -379,7 +396,7 @@ function showPage(id){
 
 // ---- COMMERCIAL ----
 function makeRow(){
-  const tr = document.createElement('tr');
+  const tr=document.createElement('tr');
   tr.innerHTML=`
     <td><input type="text" placeholder="Nom du produit"></td>
     <td><input type="text" placeholder="Lot"></td>
@@ -392,14 +409,10 @@ function makeRow(){
     <td></td>
     <td><select>
       <option value="">-- Motif --</option>
-      <option>Défaut sanitaire – moisissure</option>
-      <option>Défaut sanitaire – pourriture</option>
-      <option>Qualité insuffisante</option>
-      <option>Erreur de préparation</option>
-      <option>Colis abîmé</option>
-      <option>Livraison incomplète</option>
-      <option>Mauvais article</option>
-      <option>Autre</option>
+      <option>Défaut sanitaire – moisissure</option><option>Défaut sanitaire – pourriture</option>
+      <option>Qualité insuffisante</option><option>Erreur de préparation</option>
+      <option>Colis abîmé</option><option>Livraison incomplète</option>
+      <option>Mauvais article</option><option>Autre</option>
     </select></td>
     <td><button class="btn-del" onclick="delRow(this)"><i class="ti ti-trash"></i></button></td>`;
   return tr;
@@ -407,12 +420,10 @@ function makeRow(){
 function addRow(){ document.getElementById('products-body').appendChild(makeRow()); }
 function delRow(btn){ if(document.querySelectorAll('#products-body tr').length>1) btn.closest('tr').remove(); }
 function updateDiff(input){
-  const cell=input.closest('.qte-cell'),inputs=cell.querySelectorAll('input');
-  const badge=cell.querySelector('.qte-diff');
+  const cell=input.closest('.qte-cell'),inputs=cell.querySelectorAll('input'),badge=cell.querySelector('.qte-diff');
   const att=parseInt(inputs[0].value)||0,recu=parseInt(inputs[1].value)||0;
   if(!inputs[0].value&&!inputs[1].value){badge.style.display='none';return;}
-  const diff=recu-att;
-  badge.style.display='inline-block';
+  const diff=recu-att; badge.style.display='inline-block';
   badge.textContent=diff<0?diff+' colis':diff===0?'OK':'+'+diff;
   badge.className='qte-diff '+(diff<0?'manque':'ok');
 }
@@ -431,12 +442,17 @@ function getProducts(){
     return acc;
   },[]);
 }
+
 async function submitRetour(){
   const client=document.getElementById('f-client').value.trim();
   const bl=document.getElementById('f-bl').value.trim();
   const products=getProducts();
   if(!client||!bl||!products.length){showToast('Client, N° BL et au moins un produit requis.');return;}
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Enregistrement...';
+  const numero = await getNextNumero();
   const fiche={
+    numero,
     date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
     client,bl,
     transporteur:document.getElementById('f-transporteur').value.trim(),
@@ -447,11 +463,11 @@ async function submitRetour(){
     hasManque:products.some(p=>p.qteAttendue&&p.qteRecue&&parseInt(p.qteRecue)<parseInt(p.qteAttendue)),
     statut:'nouveau',decision:null,commentPrep:'',source:'commercial'
   };
-  const btn=document.getElementById('btn-submit');
-  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Enregistrement...';
   try{
     await window._push(window._ref(window._db,'retours'),fiche);
-    showToast('Fiche enregistrée et synchronisée !');resetForm();
+    window._derniereFiche=fiche;
+    resetForm();
+    ouvrirModalSuccess(fiche,'commercial');
   }catch(e){showToast('Erreur : '+e.message);}
   btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Enregistrer la fiche';
 }
@@ -459,15 +475,19 @@ async function submitRetour(){
 // ---- ENTREPOT ----
 function resetEntrepot(){
   ['e-agent','e-description','e-lot','e-qte','e-comment'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('e-date').value='';
+  document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('e-etat').value='';
 }
 async function submitEntrepot(){
   const agent=document.getElementById('e-agent').value.trim();
   const description=document.getElementById('e-description').value.trim();
   const etat=document.getElementById('e-etat').value;
-  if(!agent||!description||!etat){showToast('Remplis au moins : reçu par, description et état.');return;}
+  if(!agent||!description||!etat){showToast('Remplis : reçu par, description et état.');return;}
+  const btn=document.getElementById('btn-entrepot-submit');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Envoi...';
+  const numero = await getNextNumero();
   const fiche={
+    numero,
     date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
     agent,description,
     lot:document.getElementById('e-lot').value.trim(),
@@ -476,24 +496,23 @@ async function submitEntrepot(){
     comment:document.getElementById('e-comment').value.trim(),
     rattache:false,source:'entrepot'
   };
-  const btn=document.getElementById('btn-entrepot-submit');
-  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Envoi...';
   try{
     await window._push(window._ref(window._db,'retours_entrepot'),fiche);
-    showToast('Fiche envoyée au commercial !');resetEntrepot();
+    window._derniereFiche=fiche;
+    resetEntrepot();
+    ouvrirModalSuccess(fiche,'entrepot');
   }catch(e){showToast('Erreur : '+e.message);}
   btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Envoyer au commercial';
 }
 
-window.renderEntrepotList = function(){
+window.renderEntrepotList=function(){
   const container=document.getElementById('entrepot-list');
-  if(!window.retoursEntrepot.length){
-    container.innerHTML=`<div class="empty-state"><i class="ti ti-inbox"></i><br>Aucune fiche envoyée</div>`;return;
-  }
+  if(!window.retoursEntrepot.length){container.innerHTML=`<div class="empty-state"><i class="ti ti-inbox"></i><br>Aucune fiche envoyée</div>`;return;}
   container.innerHTML=window.retoursEntrepot.map(r=>`
     <div class="retour-card ${r.rattache?'':'non-declare'}">
       <div class="retour-card-header">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="num-fiche">${r.numero||'—'}</span>
           <span style="font-weight:700;font-size:15px">${r.description}</span>
           ${r.qte?`<span style="color:var(--gray);font-size:12px">× ${r.qte}</span>`:''}
         </div>
@@ -506,71 +525,154 @@ window.renderEntrepotList = function(){
         ${r.lot?`<span><i class="ti ti-tag"></i> Lot ${r.lot}</span>`:''}
       </div>
       ${r.rattache?`<div style="margin-top:8px;font-size:12px;color:#15803d;display:flex;align-items:center;gap:6px"><i class="ti ti-link"></i> Rattaché à : <strong>${r.clientRattache||''}</strong> — BL ${r.blRattache||''}</div>`:''}
-      ${!r.rattache?`<div style="margin-top:12px"><button class="btn-warn" onclick="ouvrirRattachement('${r.firebaseId}')"><i class="ti ti-link"></i> Rattacher à une commande</button></div>`:''}
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        ${!r.rattache?`<button class="btn-warn" onclick="ouvrirRattachement('${r.firebaseId}')"><i class="ti ti-link"></i> Rattacher à une commande</button>`:''}
+        <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="rouvrirPartage('${r.firebaseId}','entrepot')"><i class="ti ti-share"></i> Partager</button>
+      </div>
     </div>`).join('');
 };
 
+// ---- MODAL SUCCÈS ----
+function ouvrirModalSuccess(fiche, source){
+  window._modalFiche=fiche; window._modalSource=source;
+  document.getElementById('modal-num-fiche').textContent=fiche.numero||'—';
+  document.getElementById('modal-sous-titre').textContent=source==='entrepot'?'Fiche entrepôt envoyée au commercial':'Fiche enregistrée et synchronisée';
+  document.getElementById('recap-message-zone').style.display='none';
+  document.getElementById('modal-success').classList.add('open');
+}
+function fermerModalSuccess(){ document.getElementById('modal-success').classList.remove('open'); }
+
+function rouvrirPartage(fid, source){
+  let fiche;
+  if(source==='entrepot') fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);
+  else fiche=window.retours.find(r=>r.firebaseId===fid);
+  if(fiche) ouvrirModalSuccess(fiche,source);
+}
+
+function genererMessage(type){
+  const fiche=window._modalFiche; if(!fiche) return;
+  const source=window._modalSource;
+  const url=SITE_URL;
+  let msg='';
+
+  if(type==='attendu'){
+    // Retour déclaré par le commercial — retour attendu
+    if(source==='commercial'){
+      const lignes=fiche.products.map(p=>`  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''} → ${p.motif||'—'}`).join('\n');
+      msg=`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n`+
+        `🏪 Client : ${fiche.client}\n`+
+        `📋 BL : ${fiche.bl}\n`+
+        `🚛 Transporteur : ${fiche.transporteur||'—'}\n`+
+        `📅 Date livraison : ${fiche.dateLiv||fiche.date}\n`+
+        `👤 Commercial : ${fiche.commercial||'—'}\n\n`+
+        `*Produits retournés :*\n${lignes}\n\n`+
+        (fiche.comment?`💬 ${fiche.comment}\n\n`:'')+
+        `🔗 Voir la fiche : ${url}`;
+    } else {
+      msg=`📦 *ARRIVAGE ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n`+
+        `📦 Contenu : ${fiche.description}${fiche.qte?' × '+fiche.qte:''}\n`+
+        `📅 Reçu le : ${fiche.date}\n`+
+        `👤 Agent : ${fiche.agent}\n`+
+        `📋 État : ${fiche.etat}\n`+
+        (fiche.lot?`🏷️ Lot : ${fiche.lot}\n`:'')+
+        (fiche.comment?`💬 ${fiche.comment}\n`:'')+
+        `\n🔗 Voir la fiche : ${url}`;
+    }
+  } else {
+    // Arrivage inattendu
+    if(source==='entrepot'){
+      msg=`⚠️ *ARRIVAGE INATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n`+
+        `Un colis a été reçu SANS déclaration préalable du commercial.\n\n`+
+        `📦 Contenu : ${fiche.description}${fiche.qte?' × '+fiche.qte:''}\n`+
+        `📅 Reçu le : ${fiche.date}\n`+
+        `👤 Agent entrepôt : ${fiche.agent}\n`+
+        `📋 État : ${fiche.etat}\n`+
+        (fiche.lot?`🏷️ Lot : ${fiche.lot}\n`:'')+
+        (fiche.comment?`💬 ${fiche.comment}\n`:'')+
+        `\n⚡ Action requise : rattacher à une commande\n`+
+        `🔗 Voir et rattacher : ${url}`;
+    } else {
+      const lignes=fiche.products.map(p=>`  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''}`).join('\n');
+      msg=`⚠️ *RETOUR INATTENDU — ${fiche.numero}*\n\n`+
+        `🏪 Client : ${fiche.client}\n`+
+        `📋 BL : ${fiche.bl}\n`+
+        `📅 Date : ${fiche.date}\n\n`+
+        `*Produits :*\n${lignes}\n\n`+
+        (fiche.comment?`💬 ${fiche.comment}\n\n`:'')+
+        `🔗 Voir la fiche : ${url}`;
+    }
+  }
+  document.getElementById('recap-message-text').textContent=msg;
+  document.getElementById('recap-message-zone').style.display='block';
+  window._messageRecap=msg;
+}
+
+function copierMessage(){
+  const msg=window._messageRecap; if(!msg) return;
+  navigator.clipboard.writeText(msg).then(()=>showToast('Message copié !')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Message copié !');
+  });
+}
+function partagerWhatsapp(){
+  const msg=window._messageRecap; if(!msg) return;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+function partagerEmail(){
+  const msg=window._messageRecap; if(!msg) return;
+  const fiche=window._modalFiche;
+  const sujet=encodeURIComponent('Fiche retour '+( fiche?.numero||''));
+  window.open('mailto:?subject='+sujet+'&body='+encodeURIComponent(msg),'_blank');
+}
+
 // ---- RATTACHEMENT ----
 function ouvrirRattachement(fid){
-  const fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);
-  if(!fiche) return;
+  const fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid); if(!fiche) return;
   window.rattachId=fid;
   document.getElementById('modal-entrepot-recap').innerHTML=`
-    <strong>Fiche entrepôt :</strong><br>
+    <strong>Fiche entrepôt ${fiche.numero||''} :</strong><br>
     📦 ${fiche.description}${fiche.qte?' × '+fiche.qte:''}<br>
     🗓️ Reçu le ${fiche.date} par ${fiche.agent}<br>
-    📋 État : ${fiche.etat}
-    ${fiche.comment?`<br>💬 ${fiche.comment}`:''}`;
+    📋 État : ${fiche.etat}${fiche.comment?'<br>💬 '+fiche.comment:''}`;
   ['r-client','r-bl','r-transporteur','r-commercial','r-comment'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('r-date-livraison').value='';
   document.getElementById('modal-rattach').classList.add('open');
 }
-function closeModal(){
-  document.getElementById('modal-rattach').classList.remove('open');
-  window.rattachId=null;
-}
+function closeRattachModal(){ document.getElementById('modal-rattach').classList.remove('open'); window.rattachId=null; }
+
 async function confirmerRattachement(){
   const client=document.getElementById('r-client').value.trim();
   const bl=document.getElementById('r-bl').value.trim();
   if(!client||!bl){showToast('Client et N° BL requis.');return;}
-  const ficheEntrepot=window.retoursEntrepot.find(r=>r.firebaseId===window.rattachId);
-  if(!ficheEntrepot) return;
-  // Crée la fiche retour classique à partir des infos entrepôt
+  const ficheEntrepot=window.retoursEntrepot.find(r=>r.firebaseId===window.rattachId); if(!ficheEntrepot) return;
+  const numero = await getNextNumero();
   const fiche={
+    numero,
     date:new Date().toLocaleDateString('fr-FR'),ts:Date.now(),
     client,bl,
     transporteur:document.getElementById('r-transporteur').value.trim(),
     dateLiv:document.getElementById('r-date-livraison').value,
     commercial:document.getElementById('r-commercial').value.trim(),
     comment:document.getElementById('r-comment').value.trim()||ficheEntrepot.comment,
-    products:[{
-      nom:ficheEntrepot.description,
-      lot:ficheEntrepot.lot||'',
-      qteAttendue:'',
-      qteRecue:ficheEntrepot.qte||'',
-      motif:ficheEntrepot.etat
-    }],
-    hasManque:false,
-    statut:'nouveau',decision:null,commentPrep:'',
-    source:'entrepot_rattache',
-    entrepotId:window.rattachId
+    products:[{nom:ficheEntrepot.description,lot:ficheEntrepot.lot||'',qteAttendue:'',qteRecue:ficheEntrepot.qte||'',motif:ficheEntrepot.etat}],
+    hasManque:false,statut:'nouveau',decision:null,commentPrep:'',
+    source:'entrepot_rattache',entrepotId:window.rattachId
   };
   try{
     await window._push(window._ref(window._db,'retours'),fiche);
-    await window._update(window._ref(window._db,'retours_entrepot/'+window.rattachId),{
-      rattache:true,clientRattache:client,blRattache:bl
-    });
-    showToast('Rattachement effectué ! Fiche créée.');
-    closeModal();
+    await window._update(window._ref(window._db,'retours_entrepot/'+window.rattachId),{rattache:true,clientRattache:client,blRattache:bl});
+    closeRattachModal();
+    window._derniereFiche=fiche; window._modalFiche=fiche; window._modalSource='commercial';
+    ouvrirModalSuccess(fiche,'commercial');
   }catch(e){showToast('Erreur : '+e.message);}
 }
 
-// ---- PREPARATEUR ----
+// ---- PRÉPARATEUR ----
 function filterRetours(filter,btn){
   window.currentFilter=filter;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');renderRetours(filter);
 }
+
 window.renderRetours=function(filter){
   const container=document.getElementById('retours-list');
   const list=filter==='all'?window.retours:window.retours.filter(r=>r.statut===filter);
@@ -580,13 +682,14 @@ window.renderRetours=function(filter){
     const sLabel={nouveau:'Nouveau',en_attente:'En attente',traite:'Traité'}[r.statut]||r.statut;
     const sBadge={nouveau:'badge-new',en_attente:'badge-pending',traite:'badge-done'}[r.statut]||'badge-new';
     const isOpen=window.openId===fid;
-    const sourceTag=r.source==='entrepot_rattache'?`<span class="badge" style="background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff"><i class="ti ti-building-warehouse"></i> Entrepôt</span>`:'';
+    const srcTag=r.source==='entrepot_rattache'?`<span class="badge" style="background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff"><i class="ti ti-building-warehouse"></i> Entrepôt</span>`:'';
     return `<div class="retour-card ${r.source==='entrepot_rattache'?'non-declare':''}" onclick="toggleDetail('${fid}')">
       <div class="retour-card-header">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="num-fiche">${r.numero||'—'}</span>
           <span style="font-weight:700;font-size:15px">${r.client}</span>
           <span style="color:var(--gray);font-size:12px">BL ${r.bl}</span>
-          ${sourceTag}
+          ${srcTag}
           ${r.hasManque?`<span class="badge badge-manque"><i class="ti ti-alert-triangle"></i> Manque</span>`:''}
         </div>
         <span class="badge ${sBadge}">${sLabel}</span>
@@ -611,7 +714,7 @@ window.renderRetours=function(filter){
             <thead><tr>
               <th style="width:26%">Produit</th><th style="width:14%">Lot</th>
               <th style="width:11%">Attendu</th><th style="width:11%">Reçu</th>
-              <th style="width:13%">Écart</th><th style="width:25%">Motif / État</th>
+              <th style="width:13%">Écart</th><th style="width:25%">Motif</th>
             </tr></thead>
             <tbody>${r.products.map(p=>{
               const att=parseInt(p.qteAttendue)||0,rec=parseInt(p.qteRecue)||0;
@@ -649,10 +752,10 @@ window.renderRetours=function(filter){
             <label style="font-size:11px;color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Commentaire préparateur</label>
             <textarea style="padding:11px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:65px;background:var(--white);color:var(--dark);outline:none" placeholder="Observations..." onchange="setComment('${fid}',this.value)">${r.commentPrep||''}</textarea>
           </div>
-          ${r.decision?`<div style="margin-top:.75rem;display:flex;align-items:center;gap:8px">
-            <span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'✓ Remise en stock':'✗ Destruction'}</span>
-            <span style="font-size:12px;color:var(--gray)">décision enregistrée</span>
-          </div>`:''}
+          <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+            ${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'✓ Remise en stock':'✗ Destruction'}</span>`:''}
+            <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager la fiche</button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -673,12 +776,17 @@ async function setComment(fid,val){
   try{await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{commentPrep:val});}catch(e){}
 }
 
+function rouvrirPartage(fid, type){
+  let fiche;
+  if(type==='entrepot') fiche=window.retoursEntrepot.find(r=>r.firebaseId===fid);
+  else fiche=window.retours.find(r=>r.firebaseId===fid);
+  if(fiche) ouvrirModalSuccess(fiche, type==='entrepot'?'entrepot':'commercial');
+}
+
 // ---- SUIVI ----
 window.renderSuivi=function(){
-  const t=window.retours.length;
-  const tr=window.retours.filter(r=>r.statut==='traite').length;
+  const t=window.retours.length,tr=window.retours.filter(r=>r.statut==='traite').length;
   const ea=window.retours.filter(r=>r.statut!=='traite').length;
-  const m=window.retours.filter(r=>r.hasManque).length;
   const nd=(window.retoursEntrepot||[]).filter(r=>!r.rattache).length;
   document.getElementById('stats-grid').innerHTML=`
     <div class="stat-card"><div class="num">${t}</div><div class="lbl">Fiches totales</div></div>
@@ -689,19 +797,19 @@ window.renderSuivi=function(){
     ?`<div class="empty-state"><i class="ti ti-clipboard-x"></i><br>Aucune fiche enregistrée</div>`
     :`<table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed">
       <thead><tr style="border-bottom:1.5px solid var(--gray-light)">
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:120px;text-align:left">Client</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:100px;text-align:left">BL</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:80px;text-align:left">Date</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:90px;text-align:left">Commercial</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:75px;text-align:left">Source</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:80px;text-align:left">Statut</th>
-        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:85px;text-align:left">Décision</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:100px;text-align:left">N° Fiche</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:120px;text-align:left">Client</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:95px;text-align:left">BL</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Date</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Source</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Statut</th>
+        <th style="padding:8px 10px;color:var(--gray);font-size:10px;text-transform:uppercase;width:80px;text-align:left">Décision</th>
       </tr></thead>
       <tbody>${window.retours.map(r=>`<tr style="border-bottom:1px solid #f5f3ee">
+        <td style="padding:8px 10px"><span class="num-fiche">${r.numero||'—'}</span></td>
         <td style="padding:8px 10px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.client}</td>
         <td style="padding:8px 10px;color:var(--gray)">${r.bl}</td>
         <td style="padding:8px 10px;color:var(--gray)">${r.date}</td>
-        <td style="padding:8px 10px;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.commercial||'—'}</td>
         <td style="padding:8px 10px">${r.source==='entrepot_rattache'?`<span style="font-size:11px;color:#7c3aed;font-weight:600">Entrepôt</span>`:`<span style="font-size:11px;color:var(--gray)">Commercial</span>`}</td>
         <td style="padding:8px 10px"><span class="badge badge-${r.statut==='nouveau'?'new':r.statut==='en_attente'?'pending':'done'}">${r.statut==='nouveau'?'Nouveau':r.statut==='en_attente'?'En attente':'Traité'}</span></td>
         <td style="padding:8px 10px">${r.decision?`<span class="badge badge-${r.decision==='stock'?'stock':'destroy'}">${r.decision==='stock'?'Stock':'Destruction'}</span>`:'—'}</td>
@@ -710,10 +818,8 @@ window.renderSuivi=function(){
 };
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-
 document.getElementById('date-display').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 document.getElementById('products-body').appendChild(makeRow());
-// Date du jour par défaut dans entrepôt
 document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
 </script>
 </body>
