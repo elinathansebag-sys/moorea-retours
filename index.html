@@ -1034,130 +1034,236 @@ function genererPDF(fiche){
   if(!fiche){showToast('Aucune fiche.');return;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const W=210,ml=15,mr=15,cw=W-ml-mr;let y=18;
-  // Header
-  doc.setFillColor(10,10,10);doc.rect(0,0,W,28,'F');
-  doc.setFillColor(200,168,75);doc.rect(0,27,W,1.2,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(200,168,75);
-  doc.text('MOOREA · RETOURS CLIENTS',ml,11);
-  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
-  doc.text('Gestion des retours · Fruits & Légumes',ml,18);
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(200,168,75);
-  doc.text(fiche.numero||'—',W-mr,11,{align:'right'});
-  doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(160,160,160);
-  doc.text('N° FICHE',W-mr,17,{align:'right'});
-  y=36;
-  function secTitle(t){
-    doc.setFillColor(245,243,238);doc.rect(ml,y-4,cw,8,'F');
-    doc.setDrawColor(200,168,75);doc.setLineWidth(0.5);doc.line(ml,y-4,ml,y+4);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(100,100,100);
-    doc.text(t.toUpperCase(),ml+4,y+0.5);y+=11;
+  const W=210, ml=14, mr=14, cw=W-ml-mr;
+  let y=0;
+
+  // ── HEADER NOIR ──
+  doc.setFillColor(10,10,10);
+  doc.rect(0,0,W,32,'F');
+  // Bande dorée fine
+  doc.setFillColor(200,168,75);
+  doc.rect(0,31.5,W,1,'F');
+  // Logo texte
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(14);
+  doc.setTextColor(200,168,75);
+  doc.text('moorea', ml, 13);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(160,160,160);
+  doc.text('FICHE DE RETOUR CLIENT', ml, 20);
+  doc.setFontSize(7.5);
+  doc.setTextColor(120,120,120);
+  doc.text('Fruits & Legumes · Rungis', ml, 26);
+  // N° fiche + date
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(200,168,75);
+  doc.text(fiche.numero||'—', W-mr, 13, {align:'right'});
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(120,120,120);
+  doc.text(fiche.date||'', W-mr, 20, {align:'right'});
+
+  y = 42;
+
+  // ── INFOS GÉNÉRALES (2 colonnes) ──
+  const col1=ml, col2=ml+cw/2+2;
+  const colW=cw/2-4;
+
+  function infoBox(label, value, x, yPos, w){
+    doc.setFillColor(247,245,242);
+    doc.roundedRect(x, yPos-4, w, 12, 1.5, 1.5, 'F');
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(140,140,140);
+    doc.text(label.toUpperCase(), x+3, yPos+0.5);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(20,20,20);
+    const val = String(value||'—');
+    doc.text(doc.splitTextToSize(val, w-6)[0], x+3, yPos+6);
   }
-  // Infos
-  secTitle('Informations générales');
-  const c2=ml+cw/2;
-  const rows2=[
-    ['Client',fiche.client||'—','N° BL',fiche.bl||'—'],
-    ['Transporteur',fiche.transporteur||'—','Date livraison',fiche.dateLiv||fiche.date||'—'],
-    ['Saisi par',fiche.commercial||'—','Date fiche',fiche.date||'—'],
-  ];
-  rows2.forEach(([l1,v1,l2,v2])=>{
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120,120,120);doc.text(l1,ml,y);
-    doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(String(v1),ml+28,y);
-    doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);doc.text(l2,c2,y);
-    doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);doc.text(String(v2),c2+30,y);
-    y+=6;
-  });
-  y+=4;
-  // Produits
-  const products=fiche.products||[];
+
+  infoBox('Client', fiche.client, col1, y, colW);
+  infoBox('N° BL', fiche.bl, col2, y, colW);
+  y += 16;
+  infoBox('Transporteur', fiche.transporteur, col1, y, colW);
+  infoBox('Date de livraison', fiche.dateLiv||fiche.date, col2, y, colW);
+  y += 16;
+  infoBox('Saisi par', fiche.commercial, col1, y, colW);
+  infoBox('Date de la fiche', fiche.date, col2, y, colW);
+  y += 20;
+
+  // ── TABLEAU PRODUITS ──
+  const products = fiche.products||[];
   if(products.length){
-    secTitle('Produits');
-    const cols=[['PRODUIT',48],['LOT',18],['ORIGINE',22],['ATT.',14],['REÇU',14],['ÉCART',14],['MOTIF / ÉTAT',25],['DÉC.',15]];
+    // Titre section
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(200,168,75);
+    doc.text('PRODUITS RETOURNES', ml, y);
+    doc.setDrawColor(200,168,75);
+    doc.setLineWidth(0.4);
+    doc.line(ml, y+1.5, ml+cw, y+1.5);
+    y += 7;
+
+    // En-tête tableau
+    const cols=[
+      {h:'Produit', w:46},
+      {h:'Lot', w:16},
+      {h:'Origine', w:20},
+      {h:'Att.', w:13},
+      {h:'Recu', w:13},
+      {h:'Ecart', w:13},
+      {h:'Motif', w:30},
+      {h:'Decision', w:29}
+    ];
+    doc.setFillColor(30,30,30);
+    doc.rect(ml, y-4, cw, 8, 'F');
     let cx=ml;
-    doc.setFillColor(230,224,210);doc.rect(ml,y-4,cw,7,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(80,80,80);
-    cols.forEach(([h,w])=>{doc.text(h,cx+1.5,y);cx+=w;});
-    y+=5;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(200,168,75);
+    cols.forEach(c=>{ doc.text(c.h, cx+2, y); cx+=c.w; });
+    y += 6;
+
     products.forEach((p,i)=>{
-      if(y>265){doc.addPage();y=20;}
-      if(i%2===0){doc.setFillColor(252,250,247);doc.rect(ml,y-3.5,cw,7.5,'F');}
-      const att=parseInt(p.qteAttendue)||0,rec=parseInt(p.qteRecue)||0;
+      if(y>258){doc.addPage();y=20;}
+      const rowH = 8;
+      doc.setFillColor(i%2===0?255:249,i%2===0?255:248,i%2===0?255:246);
+      doc.rect(ml, y-3.5, cw, rowH, 'F');
+
+      const att=parseInt(p.qteAttendue)||0, rec=parseInt(p.qteRecue)||0;
       const diff=(p.qteAttendue&&p.qteRecue)?rec-att:null;
-      const diffStr=diff===null?'—':diff<0?String(diff):diff===0?'OK':'+'+diff;
+      const diffStr=diff===null?'—':diff<0?String(diff):diff===0?'=':'+'+diff;
       const dec=p.decisionArticle;
-      const decStr=dec==='accepte'?'✓ En stock':dec==='destruction'?'✗ Destruction':'—';
+
       cx=ml;
-      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(20,20,20);
-      doc.text(doc.splitTextToSize(p.nom||'—',44)[0],cx+1.5,y);cx+=cols[0][1];
-      doc.setFont('helvetica','normal');doc.setTextColor(80,80,80);
-      doc.text(p.lot||'—',cx+1.5,y);cx+=cols[1][1];
-      doc.text(p.origine||'—',cx+1.5,y);cx+=cols[2][1];
-      doc.setTextColor(20,20,20);doc.text(p.qteAttendue||'—',cx+1.5,y);cx+=cols[3][1];
-      doc.text(p.qteRecue||'—',cx+1.5,y);cx+=cols[4][1];
-      if(diff!==null&&diff<0)doc.setTextColor(180,83,9);else doc.setTextColor(21,128,61);
-      doc.text(diffStr,cx+1.5,y);cx+=cols[5][1];
-      doc.setTextColor(80,80,80);doc.text(doc.splitTextToSize(p.motif||'—',22)[0],cx+1.5,y);cx+=cols[6][1];
-      if(dec==='accepte')doc.setTextColor(21,128,61);else if(dec==='destruction')doc.setTextColor(220,38,38);else doc.setTextColor(120,120,120);
-      doc.setFont('helvetica','bold');doc.text(decStr,cx+1.5,y);
-      y+=7.5;doc.setDrawColor(240,237,230);doc.setLineWidth(0.2);doc.line(ml,y-1,ml+cw,y-1);
-    });y+=4;
-  }
-  // Contrôle interne par article
-  const hasControle=(fiche.products||[]).some(p=>p.controle&&(p.controle.qStock||p.controle.qDestroy||p.controle.qManque));
-  if(hasControle){
-    if(y>230){doc.addPage();y=20;}
-    secTitle('Contrôle interne par article');
-    // En-têtes
-    const ctrlCols=[['PRODUIT',55],['REÇU',16],['EN STOCK',22],['DÉTRUIT',22],['MANQUANT',22]];
-    let cx=ml;
-    doc.setFillColor(230,224,210);doc.rect(ml,y-4,cw,7,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(80,80,80);
-    ctrlCols.forEach(([h,w])=>{doc.text(h,cx+2,y);cx+=w;});
-    y+=5;
-    (fiche.products||[]).forEach((p,i)=>{
-      if(y>265){doc.addPage();y=20;}
-      if(i%2===0){doc.setFillColor(252,250,247);doc.rect(ml,y-3.5,cw,7.5,'F');}
-      const ctrl=p.controle||{};
-      cx=ml;
-      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(20,20,20);
-      doc.text(doc.splitTextToSize(p.nom||'—',51)[0],cx+2,y);cx+=ctrlCols[0][1];
-      doc.setFont('helvetica','normal');doc.setTextColor(60,60,60);
-      doc.text(String(p.qteRecue||'—'),cx+2,y);cx+=ctrlCols[1][1];
-      doc.setTextColor(21,128,61);doc.setFont('helvetica','bold');
-      doc.text(ctrl.qStock!=null?String(ctrl.qStock):'—',cx+2,y);cx+=ctrlCols[2][1];
-      doc.setTextColor(220,38,38);
-      doc.text(ctrl.qDestroy!=null?String(ctrl.qDestroy):'—',cx+2,y);cx+=ctrlCols[3][1];
-      doc.setTextColor(180,83,9);
-      doc.text(ctrl.qManque!=null?String(ctrl.qManque):'—',cx+2,y);
-      y+=7.5;doc.setDrawColor(240,237,230);doc.setLineWidth(0.2);doc.line(ml,y-1,ml+cw,y-1);
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(15,15,15);
+      doc.text(doc.splitTextToSize(p.nom||'—',42)[0], cx+2, y); cx+=cols[0].w;
+      doc.setFont('helvetica','normal');doc.setTextColor(90,90,90);doc.setFontSize(7.5);
+      doc.text(p.lot||'—', cx+2, y); cx+=cols[1].w;
+      doc.text(p.origine||'—', cx+2, y); cx+=cols[2].w;
+      doc.setTextColor(60,60,60);
+      doc.text(p.qteAttendue||'—', cx+2, y); cx+=cols[3].w;
+      doc.setFont('helvetica','bold');doc.setTextColor(15,15,15);
+      doc.text(p.qteRecue||'—', cx+2, y); cx+=cols[4].w;
+      if(diff!==null&&diff<0){doc.setTextColor(180,60,20);}
+      else{doc.setTextColor(21,128,61);}
+      doc.text(diffStr, cx+2, y); cx+=cols[5].w;
+      doc.setFont('helvetica','normal');doc.setTextColor(90,90,90);
+      doc.text(doc.splitTextToSize(p.motif||'—',27)[0], cx+2, y); cx+=cols[6].w;
+      if(dec==='accepte'){doc.setTextColor(21,128,61);doc.setFont('helvetica','bold');}
+      else if(dec==='destruction'){doc.setTextColor(200,38,38);doc.setFont('helvetica','bold');}
+      else{doc.setTextColor(120,120,120);doc.setFont('helvetica','normal');}
+      doc.text(dec==='accepte'?'En stock':dec==='destruction'?'Destruction':'—', cx+2, y);
+
+      // Ligne séparation
+      doc.setDrawColor(230,225,215);doc.setLineWidth(0.15);
+      doc.line(ml, y+rowH-3.5, ml+cw, y+rowH-3.5);
+      y += rowH;
     });
-    y+=4;
+    y += 6;
   }
-  // Commentaires
+
+  // ── CONTRÔLE PAR ARTICLE ──
+  const hasCtrl=(fiche.products||[]).some(p=>p.controle&&(p.controle.qStock||p.controle.qDestroy||p.controle.qManque));
+  if(hasCtrl){
+    if(y>230){doc.addPage();y=20;}
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(200,168,75);
+    doc.text('CONTROLE PAR ARTICLE', ml, y);
+    doc.setDrawColor(200,168,75);doc.setLineWidth(0.4);doc.line(ml,y+1.5,ml+cw,y+1.5);
+    y+=7;
+
+    const ctrlCols=[{h:'Produit',w:50},{h:'Recus',w:18},{h:'En stock',w:28},{h:'Destruction',w:28},{h:'Manquants',w:28},{h:'Solde',w:28}];
+    doc.setFillColor(30,30,30);doc.rect(ml,y-4,cw,8,'F');
+    let cx=ml;
+    doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(200,168,75);
+    ctrlCols.forEach(c=>{doc.text(c.h,cx+2,y);cx+=c.w;});
+    y+=6;
+
+    (fiche.products||[]).forEach((p,i)=>{
+      if(y>260){doc.addPage();y=20;}
+      const ctrl=p.controle||{};
+      const recu=parseInt(p.qteRecue)||0;
+      const stock=parseInt(ctrl.qStock)||0;
+      const destroy=parseInt(ctrl.qDestroy)||0;
+      const manque=parseInt(ctrl.qManque)||0;
+      const solde=recu-stock-destroy;
+      const rowH=8;
+      doc.setFillColor(i%2===0?255:249,i%2===0?255:248,i%2===0?255:246);
+      doc.rect(ml,y-3.5,cw,rowH,'F');
+      cx=ml;
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(15,15,15);
+      doc.text(doc.splitTextToSize(p.nom||'—',47)[0],cx+2,y);cx+=ctrlCols[0].w;
+      doc.setFont('helvetica','normal');doc.setTextColor(60,60,60);
+      doc.text(String(recu||'—'),cx+2,y);cx+=ctrlCols[1].w;
+      doc.setFont('helvetica','bold');doc.setTextColor(21,128,61);
+      doc.text(ctrl.qStock!=null?String(ctrl.qStock):'—',cx+2,y);cx+=ctrlCols[2].w;
+      doc.setTextColor(200,38,38);
+      doc.text(ctrl.qDestroy!=null?String(ctrl.qDestroy):'—',cx+2,y);cx+=ctrlCols[3].w;
+      doc.setTextColor(180,83,9);
+      doc.text(ctrl.qManque!=null?String(ctrl.qManque):'—',cx+2,y);cx+=ctrlCols[4].w;
+      const soldeColor=solde>0?[29,78,216]:solde<0?[200,38,38]:[21,128,61];
+      doc.setTextColor(soldeColor[0],soldeColor[1],soldeColor[2]);
+      doc.text(String(solde),cx+2,y);
+      doc.setDrawColor(230,225,215);doc.setLineWidth(0.15);
+      doc.line(ml,y+rowH-3.5,ml+cw,y+rowH-3.5);
+      y+=rowH;
+    });
+    // Récap total
+    const totS=(fiche.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+    const totD=(fiche.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+    const totM=(fiche.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+    y+=3;
+    doc.setFillColor(245,243,238);doc.rect(ml,y-3,cw,9,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.setTextColor(60,60,60);doc.text('TOTAL :',ml+2,y+2);
+    doc.setTextColor(21,128,61);doc.text('En stock : '+totS, ml+30, y+2);
+    doc.setTextColor(200,38,38);doc.text('Destruction : '+totD, ml+75, y+2);
+    doc.setTextColor(180,83,9);doc.text('Manquants : '+totM, ml+120, y+2);
+    y+=14;
+  }
+
+  // ── COMMENTAIRES ──
   const allC=[fiche.comment,fiche.commentPrep].filter(Boolean);
   if(allC.length){
-    secTitle('Commentaires');
+    if(y>250){doc.addPage();y=20;}
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(200,168,75);
+    doc.text('COMMENTAIRES', ml, y);
+    doc.setDrawColor(200,168,75);doc.setLineWidth(0.4);doc.line(ml,y+1.5,ml+cw,y+1.5);
+    y+=7;
     allC.forEach(c=>{
-      const lines=doc.splitTextToSize(c,cw-4);
-      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(60,60,60);
-      doc.text(lines,ml+2,y);y+=lines.length*5+3;
+      doc.setFillColor(247,245,242);
+      const lines=doc.splitTextToSize(c,cw-8);
+      doc.rect(ml,y-3,cw,lines.length*5+4,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(50,50,50);
+      doc.text(lines,ml+4,y+1);
+      y+=lines.length*5+8;
     });
   }
-  // Visa
-  y+=4;
-  if(y<240){
-    doc.setDrawColor(180,180,180);doc.setLineWidth(0.3);
-    doc.line(ml,y+12,ml+60,y+12);doc.line(ml+cw-60,y+12,ml+cw,y+12);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);
-    doc.text('Visa service qualité',ml+10,y+17);
-    doc.text('Visa du saisissant',ml+cw-55,y+17);
+
+  // ── VISA ──
+  const visaY=Math.max(y+8,230);
+  if(visaY<260){
+    doc.setDrawColor(200,168,75);doc.setLineWidth(0.3);
+    doc.line(ml,visaY,ml+55,visaY);
+    doc.line(W-mr-55,visaY,W-mr,visaY);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(140,140,140);
+    doc.text('Visa service qualite',ml,visaY+5);
+    doc.text('Visa du saisissant',W-mr-55,visaY+5);
   }
-  // Footer
-  doc.setFillColor(10,10,10);doc.rect(0,283,W,14,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(150,150,150);
-  doc.text('MOOREA COMMERCIAL FRUITS · 69 rue de Perpignan · 94632 Rungis cedex',W/2,289,{align:'center'});
-  doc.setTextColor(200,168,75);doc.text(SITE_URL,W/2,293,{align:'center'});
+
+  // ── FOOTER ──
+  doc.setFillColor(10,10,10);
+  doc.rect(0,282,W,15,'F');
+  doc.setFillColor(200,168,75);
+  doc.rect(0,282,W,0.8,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(130,130,130);
+  doc.text('MOOREA COMMERCIAL FRUITS  -  69 rue de Perpignan  -  94632 Rungis cedex  -  SIREN 532788999', W/2, 288, {align:'center'});
+  doc.setTextColor(200,168,75);
+  doc.text(SITE_URL, W/2, 293, {align:'center'});
   doc.save('fiche-retour-'+(fiche.numero||'export')+'.pdf');
   showToast('PDF téléchargé !');
 }
