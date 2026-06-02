@@ -1139,8 +1139,11 @@ function genererMessage(type){
   // Lignes articles standard
   const lignes=products.map(p=>{
     const dec=p.decisionArticle;
-    const decStr=dec==='accepte'?' ✓':dec==='destruction'?' ✗':'';
-    return `  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.origine?' · '+p.origine:''}${p.qteRecue?' — '+p.qteRecue+' unité(s)':''}${p.motif?' → '+p.motif:''}${decStr}`;
+    const decStr=dec==='accepte'?' ✓ En stock':dec==='destruction'?' ✗ Destruction':'';
+    const att=p.qteAttendue?p.qteAttendue+' attendu':'';
+    const recu=p.qteRecue?p.qteRecue+' reçu':'';
+    const qtePart=[att,recu].filter(Boolean).join(' / ');
+    return `  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.origine?' · '+p.origine:''}${qtePart?' — '+qtePart:''}${p.motif?' → '+p.motif:''}${decStr}`;
   }).join('\n');
 
   // Lignes contrôle par article (pour préparateur)
@@ -1150,7 +1153,8 @@ function genererMessage(type){
     if(ctrl.qStock) parts.push(ctrl.qStock+' en stock ✓');
     if(ctrl.qDestroy) parts.push(ctrl.qDestroy+' à détruire ✗');
     if(ctrl.qManque) parts.push(ctrl.qManque+' manquants ⚠');
-    return `  • ${p.nom}${p.qteRecue?' (reçu: '+p.qteRecue+')':''}${parts.length?' → '+parts.join(', '):''}`;
+    const att2=p.qteAttendue?p.qteAttendue+' att.':''; const recu2=p.qteRecue?p.qteRecue+' reçu':''; const qt2=[att2,recu2].filter(Boolean).join(' / ');
+    return `  • ${p.nom}${qt2?' ('+qt2+')':''}${parts.length?' → '+parts.join(', '):''}`;
   }).join('\n');
 
   let msg='';
