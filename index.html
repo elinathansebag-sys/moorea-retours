@@ -394,16 +394,20 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
     <div class="section-header"><i class="ti ti-file-type-pdf"></i> Télécharger</div>
     <button class="btn-pdf" onclick="genererPDF(window._modalFiche)" style="width:100%;justify-content:center;margin-bottom:1rem"><i class="ti ti-file-download"></i> Télécharger le PDF</button>
 
-    <div class="section-header"><i class="ti ti-brand-whatsapp"></i> Message WhatsApp</div>
-    <div id="modal-msg-buttons" style="display:flex;flex-direction:column;gap:8px;margin-bottom:.75rem"></div>
+    <div class="section-header"><i class="ti ti-brand-whatsapp"></i> Envoyer sur WhatsApp</div>
+    <div id="modal-msg-buttons" style="display:flex;flex-direction:column;gap:8px"></div>
 
-    <div id="recap-message-zone" style="display:none">
+    <!-- Zone message + groupes (s'affiche après clic sur un bouton) -->
+    <div id="recap-message-zone" style="display:none;margin-top:1rem">
       <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem" id="recap-message-label"></div>
-      <div class="recap-box" id="recap-message-text"></div>
+      <!-- Message éditable -->
+      <textarea id="recap-message-text" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.6;min-height:140px;resize:vertical;background:var(--cream);color:var(--dark);outline:none"></textarea>
+      <!-- Sélecteur de groupe -->
+      <div id="wa-group-selector" style="margin-top:.75rem"></div>
+      <!-- Copier + Email -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.75rem">
-        <button class="btn-primary" onclick="copierMessage()"><i class="ti ti-copy"></i> Copier</button>
-        <button class="btn-secondary" style="background:#dcfce7;color:#15803d;border-color:#bbf7d0" onclick="partagerWhatsapp()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
-        <button class="btn-secondary" onclick="partagerEmail()"><i class="ti ti-mail"></i> Email</button>
+        <button class="btn-secondary" style="font-size:12px;padding:8px 14px" onclick="copierMessage()"><i class="ti ti-copy"></i> Copier le texte</button>
+        <button class="btn-secondary" style="font-size:12px;padding:8px 14px" onclick="partagerEmail()"><i class="ti ti-mail"></i> Email</button>
       </div>
     </div>
     <div class="modal-actions"><button class="btn-secondary" onclick="fermerModalSuccess()">Fermer</button></div>
@@ -1331,7 +1335,7 @@ function genererMessage(type){
         '👤 Saisi par : '+(fiche.commercial||'—')+'\n\n'+
         'Articles attendus :\n'+lignes+'\n\n'+
         (fiche.comment?'💬 '+fiche.comment+'\n\n':'')+
-        '🔗 '+SITE_URL;
+        '';
 
   } else if(type==='bilan_preparateur'){
     label='Bilan de reception au commercial';
@@ -1366,7 +1370,7 @@ function genererMessage(type){
         '📅 Date : '+fiche.date+
         detail+'\n\n'+
         (fiche.commentPrep?'💬 Note preparateur : '+fiche.commentPrep+'\n\n':'')+
-        '🔗 '+SITE_URL;
+        '';
 
   } else if(type==='entrepot_nondecl'){
     label='Alerte au commercial - retour non declare';
@@ -1395,7 +1399,7 @@ function genererMessage(type){
         detail+'\n\n'+
         (fiche.comment?'💬 '+fiche.comment+'\n\n':'')+
         '⚡ Action requise : rattacher a une commande\n'+
-        '🔗 '+SITE_URL;
+        '';
 
   } else if(type==='rattache'){
     label='Confirmation de rattachement';
@@ -1406,14 +1410,54 @@ function genererMessage(type){
         '📋 BL : '+fiche.bl+'\n'+
         '📅 Date : '+fiche.date+'\n\n'+
         'Articles :\n'+lignes+'\n\n'+
-        '🔗 '+SITE_URL;
+        '';
   }
 
   const labelEl=document.getElementById('recap-message-label');
   if(labelEl) labelEl.textContent=label;
-  document.getElementById('recap-message-text').textContent=msg;
-  document.getElementById('recap-message-zone').style.display='block';
+  // Use textarea so user can edit the message
+  const ta=document.getElementById('recap-message-text');
+  if(ta) ta.value=msg;
   window._messageRecap=msg;
+  // Sync textarea value to _messageRecap on edit
+  if(ta){
+    ta.oninput=function(){ window._messageRecap=this.value; };
+  }
+  // Render group buttons directly
+  renderWAGroupSelector();
+  document.getElementById('recap-message-zone').style.display='block';
+}
+
+function renderWAGroupSelector(){
+  const groups=loadGroupes();
+  const container=document.getElementById('wa-group-selector');
+  if(!container)return;
+  if(!groups.length){
+    container.innerHTML=`<div style="font-size:12px;color:var(--gray);padding:8px 0">
+      Aucun groupe enregistré — <button onclick="showPage('params')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:underline">Ajouter un groupe dans Paramètres</button>
+    </div>`;
+    return;
+  }
+  container.innerHTML=`<div style="font-size:11px;color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.5rem">Envoyer vers :</div>`+
+  groups.map((g,i)=>`
+    <button onclick="envoyerDirectGroupe(${i})" style="width:100%;text-align:left;padding:11px 14px;background:#dcfce7;color:#15803d;border:1.5px solid #bbf7d0;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:6px;transition:all .15s">
+      <i class="ti ti-brand-whatsapp" style="font-size:18px;flex-shrink:0"></i>
+      <span>${g.name}</span>
+      <i class="ti ti-arrow-right" style="margin-left:auto;opacity:.5"></i>
+    </button>`).join('');
+}
+
+function envoyerDirectGroupe(idx){
+  const msg=window._messageRecap||'';
+  const groups=loadGroupes();
+  if(!groups[idx])return;
+  const link=groups[idx].link;
+  navigator.clipboard.writeText(msg).then(()=>{
+    showToast('Message copié ! Ouverture du groupe...');
+    setTimeout(()=>window.open(link,'_blank'),400);
+  }).catch(()=>{
+    window.open(link,'_blank');
+  });
 }
 function copierMessage(){
   const msg=window._messageRecap;if(!msg)return;
