@@ -1502,29 +1502,40 @@ window.renderRetours=function(filter){
         const style=dec==='accepte'?'background:#dcfce7;color:#15803d;border-color:#bbf7d0':dec==='destruction'?'background:#fee2e2;color:#dc2626;border-color:#fecaca':'';
         return `<span class="product-tag" style="${style}">${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.origine?' · '+p.origine:''}${dec?' '+(dec==='accepte'?'✓':'✗'):''}`;
       }).join('')}</div>
+      <!-- Bouton pointer visible sur la carte -->
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()">
+        <button class="btn-primary" style="padding:9px 20px;font-size:13px" onclick="toggleDetail('${fid}')">
+          <i class="ti ti-clipboard-check"></i> ${isOpen?'Fermer':'Pointer le retour'}
+        </button>
+        <button class="btn-secondary" style="font-size:12px;padding:8px 14px" onclick="ouvrirModification('${fid}')"><i class="ti ti-edit"></i> Modifier</button>
+        <button class="btn-pdf" style="padding:8px 12px;font-size:12px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${fid}'))"><i class="ti ti-file-download"></i></button>
+        <button class="btn-secondary" style="font-size:12px;padding:8px 12px" onclick="rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i></button>
+        <button style="padding:8px 12px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${fid}','${r.numero||fid}')"><i class="ti ti-trash"></i></button>
+      </div>
+
+      <!-- Panneau de pointage (s'ouvre au clic) -->
       <div class="detail-overlay ${isOpen?'open':''}" onclick="event.stopPropagation()">
-        <div style="margin-top:1rem;border-top:1.5px solid var(--gray-light);padding-top:1rem">
-          <div class="section-header"><i class="ti ti-shield-check"></i> Articles — contrôle préparateur</div>
-          ${r.comment?`<div style="font-size:13px;color:var(--gray);margin-bottom:.75rem;padding:10px 14px;background:var(--cream);border-radius:8px"><i class="ti ti-message"></i> ${r.comment}</div>`:''}
-          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1rem">
+        <div style="margin-top:1.25rem;border-top:1.5px solid var(--gray-light);padding-top:1.25rem">
+
+          <!-- Tableau de pointage simplifié -->
+          <div style="font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.75rem">
+            <i class="ti ti-clipboard-check"></i> Saisir les quantités reçues
+          </div>
+
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
             <thead>
-              <tr style="border-bottom:1.5px solid var(--gray-light);background:#fafaf8">
-                <th style="padding:7px 8px;text-align:left;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px">Article</th>
-                <th style="padding:7px 8px;text-align:center;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:7%">Att.</th>
-                <th style="padding:7px 8px;text-align:center;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:7%">Reçu</th>
-                <th style="padding:7px 8px;text-align:left;color:var(--gray);font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:13%">Motif</th>
-                <th style="padding:7px 8px;text-align:center;color:#15803d;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:17%">✓ En stock</th>
-                <th style="padding:7px 8px;text-align:center;color:#dc2626;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:17%">✗ Destruction</th>
-                <th style="padding:7px 8px;text-align:center;color:#b45309;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:13%">Manque</th>
-                <th style="padding:7px 8px;text-align:center;color:#1d4ed8;font-size:10px;text-transform:uppercase;letter-spacing:.5px;width:10%">Solde</th>
+              <tr style="background:#fafaf8;border-bottom:1.5px solid var(--gray-light)">
+                <th style="padding:9px 10px;text-align:left;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.4px">Article</th>
+                <th style="padding:9px 10px;text-align:center;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;width:65px">Attendu</th>
+                <th style="padding:9px 10px;text-align:center;font-size:11px;color:#15803d;text-transform:uppercase;letter-spacing:.4px;width:110px">✓ En stock</th>
+                <th style="padding:9px 10px;text-align:center;font-size:11px;color:#dc2626;text-transform:uppercase;letter-spacing:.4px;width:110px">✗ Destruction</th>
+                <th style="padding:9px 10px;text-align:center;font-size:11px;color:#b45309;text-transform:uppercase;letter-spacing:.4px;width:95px">Manquant</th>
+                <th style="padding:9px 10px;text-align:center;font-size:11px;color:#1d4ed8;text-transform:uppercase;letter-spacing:.4px;width:65px">Solde</th>
               </tr>
             </thead>
             <tbody>
               ${r.products.map((p,pi)=>{
-                const att=parseInt(p.qteAttendue)||0;
                 const recu=parseInt(p.qteRecue)||0;
-                const diff=(p.qteAttendue&&p.qteRecue)?recu-att:null;
-                const diffHtml=diff===null?'':diff<0?` <span style="color:#b45309;font-size:10px">(${diff})</span>`:'';
                 const ctrl=p.controle||{};
                 const qStock=ctrl.qStock!=null?ctrl.qStock:'';
                 const qDestroy=ctrl.qDestroy!=null?ctrl.qDestroy:'';
@@ -1533,70 +1544,63 @@ window.renderRetours=function(filter){
                 const soldeColor=solde>0?'#1d4ed8':solde<0?'#dc2626':'#15803d';
                 const soldeBg=solde>0?'#dbeafe':solde<0?'#fee2e2':'#dcfce7';
                 return `<tr style="border-bottom:1px solid #f5f3ee">
-                  <td style="padding:7px 8px">
+                  <td style="padding:9px 10px">
                     <div style="font-weight:600">${p.nom}</div>
-                    <div style="font-size:11px;color:var(--gray);margin-top:1px">
-                      ${p.lot?`<span>Lot ${p.lot}</span>`:''}
-                      ${p.lot&&p.origine?' · ':''}
-                      ${p.origine?`<span>📍 ${p.origine}</span>`:''}
-                    </div>
+                    <div style="font-size:11px;color:var(--gray)">${[p.lot?'Lot '+p.lot:'',p.origine,p.motif].filter(Boolean).join(' · ')}</div>
                   </td>
-                  <td style="padding:7px 8px;text-align:center;color:var(--gray)">${p.qteAttendue||'—'}</td>
-                  <td style="padding:7px 8px;text-align:center;font-weight:700">${recu||'—'}${diffHtml}</td>
-                  <td style="padding:7px 8px"><span class="tag-motif" style="font-size:10px">${p.motif||'—'}</span></td>
-                  <td style="padding:7px 8px">
-                    <div style="display:flex;align-items:center;gap:4px;justify-content:center">
-                      <input type="number" min="0" max="${recu}" value="${qStock}" placeholder="0"
-                        style="width:48px;text-align:center;border:1.5px solid #bbf7d0;border-radius:8px;padding:5px;background:#f0fdf4;color:#15803d;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
-                        oninput="updateSoldeRow(this)"
-                        onchange="setControleArticle('${fid}',${pi},'qStock',this.value)">
-                    </div>
+                  <td style="padding:9px 10px;text-align:center;font-size:14px;font-weight:700;color:var(--gray)">${p.qteAttendue||'—'}</td>
+                  <td style="padding:9px 10px;text-align:center">
+                    <input type="number" min="0" max="${recu||999}" value="${qStock}" placeholder="0"
+                      style="width:64px;height:38px;text-align:center;border:2px solid #bbf7d0;border-radius:10px;padding:5px;background:#f0fdf4;color:#15803d;font-weight:700;font-family:'DM Sans',sans-serif;font-size:15px;outline:none"
+                      oninput="updateSoldeRow(this)"
+                      onchange="setControleArticle('${fid}',${pi},'qStock',this.value)">
                   </td>
-                  <td style="padding:7px 8px">
-                    <div style="display:flex;align-items:center;gap:4px;justify-content:center">
-                      <input type="number" min="0" max="${recu}" value="${qDestroy}" placeholder="0"
-                        style="width:48px;text-align:center;border:1.5px solid #fecaca;border-radius:8px;padding:5px;background:#fff5f5;color:#dc2626;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
-                        oninput="updateSoldeRow(this)"
-                        onchange="setControleArticle('${fid}',${pi},'qDestroy',this.value)">
-                    </div>
+                  <td style="padding:9px 10px;text-align:center">
+                    <input type="number" min="0" max="${recu||999}" value="${qDestroy}" placeholder="0"
+                      style="width:64px;height:38px;text-align:center;border:2px solid #fecaca;border-radius:10px;padding:5px;background:#fff5f5;color:#dc2626;font-weight:700;font-family:'DM Sans',sans-serif;font-size:15px;outline:none"
+                      oninput="updateSoldeRow(this)"
+                      onchange="setControleArticle('${fid}',${pi},'qDestroy',this.value)">
                   </td>
-                  <td style="padding:7px 8px">
-                    <div style="display:flex;align-items:center;gap:4px;justify-content:center">
-                      <input type="number" min="0" value="${qManque}" placeholder="0"
-                        style="width:48px;text-align:center;border:1.5px solid #fde68a;border-radius:8px;padding:5px;background:#fffbf0;color:#b45309;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;outline:none"
-                        onchange="setControleArticle('${fid}',${pi},'qManque',this.value)">
-                    </div>
+                  <td style="padding:9px 10px;text-align:center">
+                    <input type="number" min="0" value="${qManque}" placeholder="0"
+                      style="width:60px;height:38px;text-align:center;border:2px solid #fde68a;border-radius:10px;padding:5px;background:#fffbf0;color:#b45309;font-weight:700;font-family:'DM Sans',sans-serif;font-size:15px;outline:none"
+                      onchange="setControleArticle('${fid}',${pi},'qManque',this.value)">
                   </td>
-                  <td style="padding:7px 8px;text-align:center">
-                    <span class="solde-badge" style="display:inline-block;min-width:34px;padding:3px 7px;border-radius:20px;font-size:12px;font-weight:700;background:${soldeBg};color:${soldeColor}">${solde}</span>
+                  <td style="padding:9px 10px;text-align:center">
+                    <span class="solde-badge" style="display:inline-block;min-width:38px;padding:5px 8px;border-radius:10px;font-size:14px;font-weight:700;background:${soldeBg};color:${soldeColor}">${solde}</span>
                   </td>
                 </tr>`;
               }).join('')}
             </tbody>
           </table>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-top:.5rem">
-            <label style="font-size:11px;color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Commentaire préparateur</label>
-            <textarea style="padding:11px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:60px;background:var(--white);color:var(--dark);outline:none" placeholder="Observations..." onchange="setComment('${fid}',this.value)">${r.commentPrep||''}</textarea>
-          </div>
-          <div class="controle-recap" style="margin-top:.75rem;padding:10px 12px;background:var(--cream);border-radius:10px;font-size:12px;color:var(--gray)">
+
+          <!-- Récap + commentaire -->
+          <div class="controle-recap" style="margin-top:.75rem;padding:10px 14px;background:var(--cream);border-radius:10px;font-size:13px;color:var(--gray)">
             ${(()=>{
-              const totStock=(r.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
-              const totDestroy=(r.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
-              const totManque=(r.products||[]).reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+              const prods=r.products||[];
+              const totS=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+              const totD=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+              const totM=prods.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
               const parts=[];
-              if(totStock>0) parts.push('<span style="color:#15803d;font-weight:600">✓ '+totStock+' en stock</span>');
-              if(totDestroy>0) parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totDestroy+' détruits</span>');
-              if(totManque>0) parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totManque+' manquants</span>');
-              return parts.length?'Récap : '+parts.join(' · '):'Aucune décision enregistrée pour l\'instant.';
+              if(totS>0)parts.push('<span style="color:#15803d;font-weight:600">✓ '+totS+' en stock</span>');
+              if(totD>0)parts.push('<span style="color:#dc2626;font-weight:600">✗ '+totD+' détruits</span>');
+              if(totM>0)parts.push('<span style="color:#b45309;font-weight:600">⚠ '+totM+' manquants</span>');
+              return parts.length?'Récap : '+parts.join(' · '):'Saisir les quantités ci-dessus.';
             })()}
           </div>
-          <div style="margin-top:.75rem;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-primary" style="padding:8px 18px;font-size:12px" onclick="event.stopPropagation();validerControle('${fid}')"><i class="ti ti-check"></i> Valider</button>
-            <button class="btn-secondary" style="font-size:12px;padding:7px 14px;border-color:rgba(200,168,75,.5);color:var(--gold)" onclick="event.stopPropagation();ouvrirModification('${fid}')"><i class="ti ti-edit"></i> Modifier</button>
-            <button class="btn-pdf" style="padding:7px 14px;font-size:12px" onclick="event.stopPropagation();genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${fid}'))"><i class="ti ti-file-download"></i> PDF</button>
-            <button class="btn-secondary" style="font-size:12px;padding:7px 14px" onclick="event.stopPropagation();rouvrirPartage('${fid}','retour')"><i class="ti ti-share"></i> Partager</button>
-            <button style="padding:7px 14px;font-size:12px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="event.stopPropagation();demanderSuppression('retour','${fid}','${r.numero||fid}')"><i class="ti ti-trash"></i></button>
+
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:.75rem">
+            <label style="font-size:11px;color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Commentaire</label>
+            <textarea style="padding:10px 14px;border:1.5px solid var(--gray-light);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:55px;background:var(--white);color:var(--dark);outline:none" placeholder="Observations..." onchange="setComment('${fid}',this.value)">${r.commentPrep||''}</textarea>
           </div>
+
+          <!-- Bouton valider bien visible -->
+          <div style="margin-top:1rem">
+            <button style="width:100%;padding:14px;background:var(--gold);color:var(--dark);border:none;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px" onclick="event.stopPropagation();validerControle('${fid}')">
+              <i class="ti ti-check" style="font-size:18px"></i> Valider le retour
+            </button>
+          </div>
+
         </div>
       </div>
     </div>`;
@@ -1810,10 +1814,11 @@ window.renderSuivi=function(){
             ${srcTag}
             <span class="badge badge-done">✓ Traité</span>
           </div>
-          <div style="display:flex;gap:6px">
-            <button style="padding:5px 9px;font-size:11px;background:rgba(200,168,75,.1);color:var(--gold);border:1.5px solid rgba(200,168,75,.4);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="ouvrirModification('${r.firebaseId||r.id}')"><i class="ti ti-edit"></i></button>
-            <button class="btn-pdf" style="padding:5px 9px;font-size:11px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button>
-            <button style="padding:5px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button style="padding:7px 14px;font-size:12px;background:#dbeafe;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="repointerFiche('${r.firebaseId||r.id}')"><i class="ti ti-clipboard-check"></i> Repointer</button>
+            <button style="padding:7px 12px;font-size:12px;background:rgba(200,168,75,.1);color:var(--gold);border:1.5px solid rgba(200,168,75,.4);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="ouvrirModification('${r.firebaseId||r.id}')"><i class="ti ti-edit"></i></button>
+            <button class="btn-pdf" style="padding:7px 9px;font-size:12px" onclick="genererPDF(window.retours.find(x=>(x.firebaseId||x.id)==='${r.firebaseId||r.id}'))"><i class="ti ti-file-download"></i></button>
+            <button style="padding:7px 9px;font-size:11px;background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="demanderSuppression('retour','${r.firebaseId||r.id}','${r.numero||r.firebaseId||r.id}')"><i class="ti ti-trash"></i></button>
           </div>
         </div>
         <div class="retour-card-meta">
@@ -2177,6 +2182,19 @@ function envoyerVersGroupe(idx){
       window.open(link,'_blank');
     });
   }
+}
+
+// Repointer une fiche traitée — repasse en en_attente et va sur l'onglet
+async function repointerFiche(fid){
+  const fiche=window.retours.find(r=>(r.firebaseId||r.id)===fid);if(!fiche)return;
+  try{
+    await window._update(window._ref(window._db,'retours/'+fiche.firebaseId),{statut:'en_attente'});
+    // Aller sur l'onglet En attente de réception
+    switchDeclTab('fiches',document.getElementById('dtab-fiches'));
+    // Ouvrir la fiche
+    setTimeout(()=>{window.openId=fid;renderRetours('non_traite');},300);
+    showToast('Fiche repassée en attente de pointage.');
+  }catch(e){showToast('Erreur : '+e.message);}
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
