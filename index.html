@@ -1613,21 +1613,30 @@ function toggleDetail(id){window.openId=window.openId===id?null:id;renderRetours
 function updateSoldeRow(input){
   const row=input.closest('tr');
   if(!row)return;
-  const allInputs=row.querySelectorAll('input[type=number]');
-  // recu est dans la 2e colonne (text, not input)
   const recuCell=row.querySelector('td:nth-child(2)');
   const recu=parseInt(recuCell?.textContent)||0;
-  let stock=0,destroy=0;
-  allInputs.forEach(inp=>{
-    const onch=inp.getAttribute('onchange')||inp.getAttribute('oninput')||'';
-    if(inp.getAttribute('onchange')?.includes("'qStock'")) stock=parseInt(inp.value)||0;
-    if(inp.getAttribute('onchange')?.includes("'qDestroy'")) destroy=parseInt(inp.value)||0;
-  });
-  // fallback: 1st green input = stock, 1st red = destroy
   const greens=row.querySelectorAll('input[style*="#f0fdf4"]');
   const reds=row.querySelectorAll('input[style*="#fff5f5"]');
-  if(greens[0]) stock=parseInt(greens[0].value)||0;
-  if(reds[0]) destroy=parseInt(reds[0].value)||0;
+  let stock=parseInt(greens[0]?.value)||0;
+  let destroy=parseInt(reds[0]?.value)||0;
+
+  // Bloquer si stock + destruction > reçu
+  if(recu>0 && stock+destroy>recu){
+    // L'input qui vient d'être modifié est limité
+    const isStock=input.style.background.includes('#f0fdf4')||input.style.background.includes('f0fdf4');
+    if(isStock){
+      stock=Math.max(0,recu-destroy);
+      input.value=stock;
+      input.style.borderColor='#dc2626';
+      setTimeout(()=>{input.style.borderColor='#bbf7d0';},1000);
+    } else {
+      destroy=Math.max(0,recu-stock);
+      input.value=destroy;
+      input.style.borderColor='#dc2626';
+      setTimeout(()=>{input.style.borderColor='#fecaca';},1000);
+    }
+    showToast('La somme En stock + Destruction ne peut pas dépasser le total reçu ('+recu+')');
+  }
   const solde=recu-stock-destroy;
   const badge=row.querySelector('.solde-badge');
   if(badge){
