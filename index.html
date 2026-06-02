@@ -383,25 +383,26 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);backgroun
 
 <!-- MODAL SUCCÈS -->
 <div class="modal-bg" id="modal-success">
-  <div class="modal">
+  <div class="modal" style="max-width:520px">
     <div style="text-align:center;margin-bottom:1.25rem">
-      <div style="font-size:40px;margin-bottom:.5rem">✅</div>
+      <div style="font-size:40px;margin-bottom:.5rem" id="modal-success-emoji">✅</div>
       <div class="num-fiche-label">Numéro de fiche</div>
       <div class="num-fiche-big" id="modal-num-fiche">RC-2026-001</div>
       <div style="font-size:13px;color:var(--gray)" id="modal-sous-titre">Fiche enregistrée</div>
     </div>
+
     <div class="section-header"><i class="ti ti-file-type-pdf"></i> Télécharger</div>
     <button class="btn-pdf" onclick="genererPDF(window._modalFiche)" style="width:100%;justify-content:center;margin-bottom:1rem"><i class="ti ti-file-download"></i> Télécharger le PDF</button>
-    <div class="section-header"><i class="ti ti-message-share"></i> Envoyer un message récap</div>
-    <div class="share-options">
-      <button class="btn-green" onclick="genererMessage('attendu')"><i class="ti ti-truck-delivery"></i> Retour client</button>
-      <button class="btn-purple" onclick="genererMessage('inattendu')"><i class="ti ti-alert-circle"></i> Arrivage inattendu</button>
-    </div>
+
+    <div class="section-header"><i class="ti ti-brand-whatsapp"></i> Message WhatsApp</div>
+    <div id="modal-msg-buttons" style="display:flex;flex-direction:column;gap:8px;margin-bottom:.75rem"></div>
+
     <div id="recap-message-zone" style="display:none">
+      <div style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem" id="recap-message-label"></div>
       <div class="recap-box" id="recap-message-text"></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:.75rem">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:.75rem">
         <button class="btn-primary" onclick="copierMessage()"><i class="ti ti-copy"></i> Copier</button>
-        <button class="btn-secondary" onclick="partagerWhatsapp()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
+        <button class="btn-secondary" style="background:#dcfce7;color:#15803d;border-color:#bbf7d0" onclick="partagerWhatsapp()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
         <button class="btn-secondary" onclick="partagerEmail()"><i class="ti ti-mail"></i> Email</button>
       </div>
     </div>
@@ -1019,8 +1020,42 @@ window._buildEntrepotHTML=function(){
 function ouvrirModalSuccess(fiche,source){
   window._modalFiche=fiche;window._modalSource=source;
   document.getElementById('modal-num-fiche').textContent=fiche.numero||'—';
-  document.getElementById('modal-sous-titre').textContent=source==='entrepot'?'Fiche entrepôt envoyée au commercial':'Fiche enregistrée et synchronisée';
   document.getElementById('recap-message-zone').style.display='none';
+
+  // Sous-titre selon contexte
+  const sousTitres={
+    commercial:'Retour saisi — à transmettre au préparateur',
+    entrepot:'Fiche entrepôt — à transmettre au commercial',
+    entrepot_rattache:'Retour rattaché — fiche créée',
+    valide:'Contrôle validé — à transmettre au commercial'
+  };
+  document.getElementById('modal-sous-titre').textContent=sousTitres[source]||'Fiche enregistrée';
+
+  // Construire les boutons de message selon le contexte
+  const btns=document.getElementById('modal-msg-buttons');
+  btns.innerHTML='';
+
+  const addBtn=(label,icon,color,bg,border,fn)=>{
+    btns.innerHTML+=`<button onclick="${fn}" style="padding:11px 16px;background:${bg};color:${color};border:1.5px solid ${border};border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;width:100%;text-align:left;transition:all .15s">
+      <i class="ti ${icon}" style="font-size:16px;flex-shrink:0"></i>
+      <span>${label}</span>
+    </button>`;
+  };
+
+  if(source==='commercial'){
+    // Message 1 : Retour saisi → préparateur "tu vas recevoir"
+    addBtn('Prévenir le préparateur — retour à venir','ti-package','#1d4ed8','#dbeafe','#bfdbfe',"genererMessage('prevu_preparateur')");
+  } else if(source==='entrepot'){
+    // Message 3 : Entrepôt non déclaré → commercial "on a reçu ça"
+    addBtn('Alerter le commercial — retour non déclaré','ti-alert-circle','#b45309','#fef3c7','#fde68a',"genererMessage('entrepot_nondecl')");
+  } else if(source==='valide'){
+    // Message 2 : Retour validé → commercial "j'ai pointé, voici le bilan"
+    addBtn('Envoyer le bilan au commercial','ti-circle-check','#15803d','#dcfce7','#bbf7d0',"genererMessage('bilan_preparateur')");
+  } else if(source==='entrepot_rattache'){
+    addBtn('Prévenir le préparateur — retour à venir','ti-package','#1d4ed8','#dbeafe','#bfdbfe',"genererMessage('prevu_preparateur')");
+    addBtn('Alerter le commercial — retour rattaché','ti-link','#7c3aed','#f3e8ff','#e9d5ff',"genererMessage('rattache')");
+  }
+
   document.getElementById('modal-success').classList.add('open');
 }
 function fermerModalSuccess(){document.getElementById('modal-success').classList.remove('open');}
@@ -1272,73 +1307,110 @@ window.genererPDF=genererPDF;
 // ---- MESSAGE ----
 function genererMessage(type){
   const fiche=window._modalFiche;if(!fiche)return;
-  const source=window._modalSource;
   const products=fiche.products||[];
 
-  // Lignes articles standard
-  const lignes=products.map(p=>{
-    const dec=p.decisionArticle;
-    const decStr=dec==='accepte'?' ✓ En stock':dec==='destruction'?' ✗ Destruction':'';
-    const att=p.qteAttendue?p.qteAttendue+' attendu':'';
-    const recu=p.qteRecue?p.qteRecue+' reçu':'';
-    const qtePart=[att,recu].filter(Boolean).join(' / ');
-    return `  • ${p.nom}${p.lot?' (Lot '+p.lot+')':''}${p.origine?' · '+p.origine:''}${qtePart?' — '+qtePart:''}${p.motif?' → '+p.motif:''}${decStr}`;
-  }).join('\n');
-
-  // Lignes contrôle par article (pour préparateur)
-  const lignesControle=products.map(p=>{
-    const ctrl=p.controle||{};
-    const parts=[];
-    if(ctrl.qStock) parts.push(ctrl.qStock+' en stock ✓');
-    if(ctrl.qDestroy) parts.push(ctrl.qDestroy+' à détruire ✗');
-    if(ctrl.qManque) parts.push(ctrl.qManque+' manquants ⚠');
-    const att2=p.qteAttendue?p.qteAttendue+' att.':''; const recu2=p.qteRecue?p.qteRecue+' reçu':''; const qt2=[att2,recu2].filter(Boolean).join(' / ');
-    return `  • ${p.nom}${qt2?' ('+qt2+')':''}${parts.length?' → '+parts.join(', '):''}`;
-  }).join('\n');
+  function ligneArticle(p){
+    const att=p.qteAttendue?p.qteAttendue+' att.':'';
+    const rec=p.qteRecue?p.qteRecue+' recu':'';
+    const qt=[att,rec].filter(Boolean).join(' / ');
+    return '  - '+p.nom+(p.lot?' (Lot '+p.lot+')':"")+(p.origine?' - '+p.origine:'')+(qt?' -- '+qt:'')+(p.motif?' => '+p.motif:'');
+  }
 
   let msg='';
+  let label='';
 
-  if(type==='attendu'){
-    msg=source==='commercial'
-      ?`📦 *RETOUR CLIENT ATTENDU — ${fiche.numero}*\n\n🏪 Client : ${fiche.client}\n📋 BL : ${fiche.bl}\n🚛 Transporteur : ${fiche.transporteur||'—'}\n📅 Date : ${fiche.dateLiv||fiche.date}\n👤 Saisi par : ${fiche.commercial||'—'}\n\n*Produits :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`
-      :`📦 *RETOUR CLIENT ATTENDU EN ENTREPÔT — ${fiche.numero}*\n\n📅 ${fiche.date} · 👤 ${fiche.agent}\n${fiche.clientConnu?'🏪 Client : '+fiche.clientConnu+'\n':''}${fiche.transporteurConnu?'🚛 Transporteur : '+fiche.transporteurConnu+'\n':''}\n*Articles reçus :*\n${lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+  if(type==='prevu_preparateur'){
+    label='Message au preparateur - retour a venir';
+    const lignes=products.map(ligneArticle).join('\n');
+    msg='📦 RETOUR CLIENT A RECEPTIONNER - '+fiche.numero+'\n\n'+
+        'Un retour arrive, merci de le pointer a la reception.\n\n'+
+        '🏪 Client : '+fiche.client+'\n'+
+        '📋 BL : '+fiche.bl+'\n'+
+        '🚛 Transporteur : '+(fiche.transporteur||'—')+'\n'+
+        '📅 Date de livraison : '+(fiche.dateLiv||fiche.date)+'\n'+
+        '👤 Saisi par : '+(fiche.commercial||'—')+'\n\n'+
+        'Articles attendus :\n'+lignes+'\n\n'+
+        (fiche.comment?'💬 '+fiche.comment+'\n\n':'')+
+        '🔗 '+SITE_URL;
 
-  }else{
-    if(source==='entrepot'){
-      // Message inattendu entrepôt — détaillé avec stock/destruction
-      const clientInfo=fiche.clientConnu?`🏪 *${fiche.clientConnu}*`:'🏪 Client inconnu — à identifier';
-      const transportInfo=fiche.transporteurConnu?`🚛 Transporteur : ${fiche.transporteurConnu}`:'🚛 Transporteur inconnu';
-
-      // Séparation articles remis en stocks vs détruits
-      const acceptes=products.filter(p=>p.decisionArticle==='accepte');
-      const detruits=products.filter(p=>p.decisionArticle==='destruction');
-      const sansDecision=products.filter(p=>!p.decisionArticle);
-
-      let detailLines='';
-      if(acceptes.length){
-        detailLines+=`\n✅ *À remettre en stock :*\n`;
-        detailLines+=acceptes.map(p=>`  • ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.origine?' ('+p.origine+')':''}`).join('\n');
-      }
-      if(detruits.length){
-        detailLines+=`\n\n🗑️ *À détruire :*\n`;
-        detailLines+=detruits.map(p=>`  • ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.motif?' — '+p.motif:''}`).join('\n');
-      }
-      if(sansDecision.length){
-        detailLines+=`\n\n❓ *Décision en attente :*\n`;
-        detailLines+=sansDecision.map(p=>`  • ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}`).join('\n');
-      }
-
-      msg=`⚠️ *ATTENTION — RETOUR NON DÉCLARÉ — ${fiche.numero}*\n\n`+
-          `Nous avons reçu un retour sans déclaration préalable.\n\n`+
-          `${clientInfo}\n${transportInfo}\n📅 Reçu le : ${fiche.date}\n👤 Agent : ${fiche.agent}\n`+
-          detailLines+
-          `\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}`+
-          `⚡ Action requise : rattacher à une commande\n🔗 ${SITE_URL}`;
-
-    }else{
-      msg=`⚠️ *RETOUR INATTENDU — ${fiche.numero}*\n\n🏪 ${fiche.client} · BL ${fiche.bl}\n📅 ${fiche.date}\n\n*Produits :*\n${lignesControle||lignes}\n\n${fiche.comment?'💬 '+fiche.comment+'\n\n':''}🔗 ${SITE_URL}`;
+  } else if(type==='bilan_preparateur'){
+    label='Bilan de reception au commercial';
+    const enStock=products.filter(p=>p.controle&&parseInt(p.controle.qStock)>0);
+    const aDetruire=products.filter(p=>p.controle&&parseInt(p.controle.qDestroy)>0);
+    const manquants=products.filter(p=>p.controle&&parseInt(p.controle.qManque)>0);
+    const nonTraites=products.filter(p=>!p.controle||(!p.controle.qStock&&!p.controle.qDestroy&&!p.controle.qManque));
+    const totS=products.reduce((s,p)=>s+(parseInt((p.controle||{}).qStock)||0),0);
+    const totD=products.reduce((s,p)=>s+(parseInt((p.controle||{}).qDestroy)||0),0);
+    const totM=products.reduce((s,p)=>s+(parseInt((p.controle||{}).qManque)||0),0);
+    let detail='';
+    if(enStock.length){
+      detail+='\n\n✅ Remis en stock ('+totS+' colis) :\n';
+      detail+=enStock.map(p=>'  - '+p.nom+(p.origine?' - '+p.origine:'')+' -- '+p.controle.qStock+' colis').join('\n');
     }
+    if(aDetruire.length){
+      detail+='\n\n🗑️ Detruits / non conformes ('+totD+' colis) :\n';
+      detail+=aDetruire.map(p=>'  - '+p.nom+(p.origine?' - '+p.origine:'')+' -- '+p.controle.qDestroy+' colis'+(p.motif?' ('+p.motif+')':'')).join('\n');
+    }
+    if(manquants.length){
+      detail+='\n\n⚠️ Manquants ('+totM+' colis) :\n';
+      detail+=manquants.map(p=>'  - '+p.nom+' -- '+p.controle.qManque+' colis manquants').join('\n');
+    }
+    if(nonTraites.length){
+      detail+='\n\n❓ Non traites :\n';
+      detail+=nonTraites.map(p=>'  - '+p.nom+(p.qteRecue?' ('+p.qteRecue+' recus)':'')).join('\n');
+    }
+    msg='✅ RETOUR RECEPTIONNE ET POINTE - '+fiche.numero+'\n\n'+
+        'Le retour a ete receptionne et controle.\n\n'+
+        '🏪 Client : '+fiche.client+'\n'+
+        '📋 BL : '+fiche.bl+'\n'+
+        '📅 Date : '+fiche.date+
+        detail+'\n\n'+
+        (fiche.commentPrep?'💬 Note preparateur : '+fiche.commentPrep+'\n\n':'')+
+        '🔗 '+SITE_URL;
+
+  } else if(type==='entrepot_nondecl'){
+    label='Alerte au commercial - retour non declare';
+    const enStock=products.filter(p=>p.decisionArticle==='accepte');
+    const aDetruire=products.filter(p=>p.decisionArticle==='destruction');
+    const sansDecision=products.filter(p=>!p.decisionArticle);
+    let detail='';
+    if(enStock.length){
+      detail+='\n\n✅ A remettre en stock :\n';
+      detail+=enStock.map(p=>'  - '+p.nom+(p.qteRecue?' x '+p.qteRecue:'')+(p.origine?' ('+p.origine+')':'')).join('\n');
+    }
+    if(aDetruire.length){
+      detail+='\n\n🗑️ A detruire :\n';
+      detail+=aDetruire.map(p=>'  - '+p.nom+(p.qteRecue?' x '+p.qteRecue:'')+(p.motif?' -- '+p.motif:'')).join('\n');
+    }
+    if(sansDecision.length){
+      detail+='\n\n❓ Decision a prendre :\n';
+      detail+=sansDecision.map(p=>'  - '+p.nom+(p.qteRecue?' x '+p.qteRecue:'')).join('\n');
+    }
+    msg='⚠️ RETOUR NON DECLARE RECU - '+fiche.numero+'\n\n'+
+        'Nous avons recu un retour SANS declaration prealable.\n\n'+
+        (fiche.clientConnu?'🏪 Client : '+fiche.clientConnu:'🏪 Client : inconnu -- a identifier')+'\n'+
+        (fiche.transporteurConnu?'🚛 Transporteur : '+fiche.transporteurConnu:'🚛 Transporteur : inconnu')+'\n'+
+        '📅 Recu le : '+fiche.date+'\n'+
+        '👤 Agent entrepot : '+fiche.agent+
+        detail+'\n\n'+
+        (fiche.comment?'💬 '+fiche.comment+'\n\n':'')+
+        '⚡ Action requise : rattacher a une commande\n'+
+        '🔗 '+SITE_URL;
+
+  } else if(type==='rattache'){
+    label='Confirmation de rattachement';
+    const lignes=products.map(ligneArticle).join('\n');
+    msg='🔗 RETOUR RATTACHE - '+fiche.numero+'\n\n'+
+        'La fiche entrepot a ete rattachee a une commande.\n\n'+
+        '🏪 Client : '+fiche.client+'\n'+
+        '📋 BL : '+fiche.bl+'\n'+
+        '📅 Date : '+fiche.date+'\n\n'+
+        'Articles :\n'+lignes+'\n\n'+
+        '🔗 '+SITE_URL;
   }
+
+  const labelEl=document.getElementById('recap-message-label');
+  if(labelEl) labelEl.textContent=label;
   document.getElementById('recap-message-text').textContent=msg;
   document.getElementById('recap-message-zone').style.display='block';
   window._messageRecap=msg;
@@ -1637,9 +1709,11 @@ async function validerControle(fid){
       statut:'traite',
       commentPrep:fiche.commentPrep||''
     });
-    showToast('Contrôle validé et fiche traitée !');
-    // Fermer le détail
+    showToast('Contrôle validé !');
     window.openId=null;
+    // Ouvrir modal bilan
+    const ficheMAJ=window.retours.find(r=>(r.firebaseId||r.id)===fid);
+    if(ficheMAJ){window._modalFiche=ficheMAJ;ouvrirModalSuccess(ficheMAJ,'valide');}
   }catch(e){showToast('Erreur : '+e.message);}
 }
 
