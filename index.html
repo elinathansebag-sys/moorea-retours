@@ -1466,8 +1466,13 @@ function ouvrirRattachement(fid){
     return `📦 ${p.nom}${p.qteRecue?' × '+p.qteRecue:''}${p.origine?' · '+p.origine:''}${p.motif?' — '+p.motif:''}${dec?' ('+( dec==='accepte'?'✓ En stock':'✗ Destruction')+')':''}`;
   }).join('<br>');
   document.getElementById('modal-entrepot-recap').innerHTML=`<strong>Fiche ${fiche.numero||''} :</strong><br>${prods}${fiche.comment?'<br>💬 '+fiche.comment:''}`;
-  ['r-client','r-bl','r-transporteur','r-commercial','r-comment'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('r-date-livraison').value='';
+  // Pré-remplir avec les infos déjà connues de la fiche entrepôt
+  document.getElementById('r-client').value = fiche.clientConnu||'';
+  document.getElementById('r-transporteur').value = fiche.transporteurConnu||'';
+  document.getElementById('r-bl').value = '';
+  document.getElementById('r-commercial').value = '';
+  document.getElementById('r-comment').value = fiche.comment||'';
+  document.getElementById('r-date-livraison').value = fiche.dateLiv||fiche.date||'';
   document.getElementById('modal-rattach').classList.add('open');
 }
 function closeRattachModal(){document.getElementById('modal-rattach').classList.remove('open');window.rattachId=null;}
@@ -1511,7 +1516,7 @@ window.renderRetours=function(filter){
     const sBadge={nouveau:'badge-new',en_attente:'badge-pending',traite:'badge-done'}[r.statut]||'badge-new';
     const isOpen=window.openId===fid;
     const srcTag=r.source==='entrepot_rattache'?`<span class="badge" style="background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff"><i class="ti ti-building-warehouse"></i> Entrepôt</span>`:'';
-    return `<div class="retour-card ${r.source==='entrepot_rattache'?'non-declare':''}" onclick="toggleDetail('${fid}')">
+    return `<div class="retour-card ${r.source==='entrepot_rattache'?'non-declare':''}" data-fid="${fid}">
       <div class="retour-card-header">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span class="num-fiche">${r.numero||'—'}</span>
@@ -1534,7 +1539,7 @@ window.renderRetours=function(filter){
       }).join('')}</div>
       <!-- Bouton pointer visible sur la carte -->
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()">
-        <button class="btn-primary" style="padding:9px 20px;font-size:13px" onclick="toggleDetail('${fid}')">
+        <button class="btn-primary" data-btn-pointer style="padding:9px 20px;font-size:13px" onclick="event.stopPropagation();toggleDetail('${fid}')">
           <i class="ti ti-clipboard-check"></i> ${isOpen?'Fermer':'Pointer le retour'}
         </button>
         <button class="btn-secondary" style="font-size:12px;padding:8px 14px" onclick="ouvrirModification('${fid}')"><i class="ti ti-edit"></i> Modifier</button>
@@ -1637,7 +1642,30 @@ window.renderRetours=function(filter){
   }).join('');
 };
 
-function toggleDetail(id){window.openId=window.openId===id?null:id;renderRetours(window.currentFilter);}
+function toggleDetail(id){
+  const wasOpen = window.openId === id;
+  window.openId = wasOpen ? null : id;
+
+  // Instead of re-rendering everything, just toggle the panel on the clicked card
+  // and close any other open panel
+  document.querySelectorAll('.detail-overlay.open').forEach(el => {
+    el.classList.remove('open');
+  });
+  document.querySelectorAll('[data-btn-pointer]').forEach(el => {
+    el.textContent = el.textContent.replace('Fermer', 'Pointer le retour');
+  });
+
+  if(!wasOpen){
+    // Find the card and open its detail panel
+    const card = document.querySelector(`[data-fid="${id}"]`);
+    if(card){
+      const panel = card.querySelector('.detail-overlay');
+      if(panel) panel.classList.add('open');
+      const btnPointer = card.querySelector('[data-btn-pointer]');
+      if(btnPointer) btnPointer.innerHTML = '<i class="ti ti-clipboard-check"></i> Fermer';
+    }
+  }
+}
 
 // Met à jour le solde en temps réel dans la même ligne
 function updateSoldeRow(input){
@@ -1753,6 +1781,11 @@ async function validerControle(fid){
       commentPrep:fiche.commentPrep||''
     });
     showToast('Contrôle validé !');
+    // Fermer le panneau sans re-rendre
+    const card=document.querySelector(`[data-fid="${fid}"]`);
+    if(card){
+      card.querySelector('.detail-overlay')?.classList.remove('open');
+    }
     window.openId=null;
     // Ouvrir modal bilan
     const ficheMAJ=window.retours.find(r=>(r.firebaseId||r.id)===fid);
